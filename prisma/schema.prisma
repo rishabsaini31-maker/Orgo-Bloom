@@ -1,0 +1,195 @@
+// Orgobloom Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  phone         String?
+  role          Role      @default(CUSTOMER)
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  orders        Order[]
+  addresses     Address[]
+  
+  @@index([email])
+  @@map("users")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  price       Float
+  weight      String   // e.g., "5 kg", "10 kg", "25 kg"
+  stock       Int      @default(0)
+  imageUrl    String?
+  images      String[] // Array of image URLs
+  category    String   @default("cow") // "cow" or "chicken"
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  
+  // Product details
+  benefits    String[] // Array of benefits
+  usage       String?  @db.Text
+  composition String?  @db.Text
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  orderItems  OrderItem[]
+  
+  @@index([slug])
+  @@index([category])
+  @@index([isActive])
+  @@map("products")
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String
+  
+  // Order details
+  subtotal        Float
+  shippingCost    Float       @default(0)
+  tax             Float       @default(0)
+  total           Float
+  
+  // Status
+  status          OrderStatus @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  
+  // Shipping address
+  shippingAddress Json
+  
+  // Tracking
+  trackingNumber  String?
+  notes           String?     @db.Text
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           OrderItem[]
+  payment         Payment?
+  
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String
+  
+  quantity  Int
+  price     Float    // Price at time of order
+  weight    String   // Weight variant purchased
+  
+  createdAt DateTime @default(now())
+  
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+  
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  
+  fullName    String
+  phone       String
+  addressLine1 String
+  addressLine2 String?
+  city        String
+  state       String
+  pincode     String
+  country     String   @default("India")
+  
+  isDefault   Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("addresses")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  orderId           String        @unique
+  
+  // Razorpay details
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  
+  amount            Float
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  
+  // Additional info
+  method            String?       // card, netbanking, upi, wallet
+  email             String?
+  contact           String?
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@index([razorpayOrderId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  videos    String[] @default([])
+  updatedAt DateTime @updatedAt
+  
+  @@map("settings")
+}
