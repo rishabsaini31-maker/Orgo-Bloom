@@ -118,12 +118,27 @@ export default function ProductDetailPage() {
             <div className="relative h-96 lg:h-[500px] bg-gray-200 rounded-lg overflow-hidden">
               {product.imageUrl ? (
                 <>
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
+                  {product.imageUrl.startsWith("/uploads/") ? (
+                    // Use standard img tag for uploaded files
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error(
+                          `Failed to load image: ${product.imageUrl}`,
+                        );
+                      }}
+                    />
+                  ) : (
+                    // Use Next.js Image for external URLs
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  )}
                   {/* 30% OFF Badge */}
                   <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-lg">
                     {discountPercentage}% OFF

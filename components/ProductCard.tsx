@@ -89,12 +89,25 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative h-48 bg-gray-200 group">
           {currentImage ? (
             <>
-              <Image
-                src={currentImage}
-                alt={product.name}
-                fill
-                className="object-cover"
-              />
+              {currentImage.startsWith("/uploads/") ? (
+                // Use standard img tag for uploaded files
+                <img
+                  src={currentImage}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error(`Failed to load image: ${currentImage}`);
+                  }}
+                />
+              ) : (
+                // Use Next.js Image for external URLs
+                <Image
+                  src={currentImage}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                />
+              )}
               {/* Favorite Button */}
               <button
                 type="button"
