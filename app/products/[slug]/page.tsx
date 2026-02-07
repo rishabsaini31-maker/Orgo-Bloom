@@ -196,7 +196,7 @@ export default function ProductDetailPage() {
                         <button
                           key={index + 1}
                           onClick={() => setSelectedImageIndex(index + 1)}
-                          className={`relative h-32 lg:h-40 bg-gray-200 rounded-lg overflow-hidden group transition-all ${
+                          className={`relative h-40 lg:h-52 bg-gray-200 rounded-lg overflow-hidden group transition-all ${
                             selectedImageIndex === index + 1
                               ? "ring-4 ring-primary-600"
                               : "hover:ring-2 hover:ring-gray-300"
