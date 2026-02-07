@@ -5,7 +5,7 @@ import { authenticateRequest, isAdmin } from "@/lib/auth";
 import { ApiError, handleApiError } from "@/lib/api-utils";
 
 const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB for large images/videos
+const MAX_FILE_SIZE = 150 * 1024 * 1024; // 150MB for large videos and images
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 

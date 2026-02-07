@@ -10,7 +10,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "50mb", // Allow larger uploads
+      bodySizeLimit: "150mb", // Allow larger uploads (videos up to 150MB)
     },
   },
 };

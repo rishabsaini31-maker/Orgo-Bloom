@@ -37,7 +37,7 @@ export default function ProductDetailPage() {
     try {
       const response = await productApi.getBySlug(slug);
       setProduct(response.data.product);
-      
+
       // Fetch related products (all active products except current one)
       const allProductsResponse = await productApi.getAll({ limit: 100 });
       const related = allProductsResponse.data.products
@@ -347,7 +347,10 @@ export default function ProductDetailPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {relatedProducts.map((relatedProduct) => (
-                  <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                  <ProductCard
+                    key={relatedProduct.id}
+                    product={relatedProduct}
+                  />
                 ))}
               </div>
             </div>

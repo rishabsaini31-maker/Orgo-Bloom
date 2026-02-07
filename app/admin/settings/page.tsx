@@ -66,6 +66,7 @@ export default function AdminSettingsPage() {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
+        signal: AbortSignal.timeout(600000), // 10 minute timeout for 150MB files
       });
 
       if (!response.ok) {

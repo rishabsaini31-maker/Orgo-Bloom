@@ -109,7 +109,7 @@ export default function EditProductPage() {
             Authorization: `Bearer ${token}`,
           },
           body: formDataToUpload,
-          signal: AbortSignal.timeout(300000), // 5 minute timeout for large files
+          signal: AbortSignal.timeout(600000), // 10 minute timeout for 150MB files
         });
 
         if (!response.ok) {
