@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync, statSync } from "fs";
 import { join } from "path";
 import { authenticateRequest, isAdmin } from "@/lib/auth";
 import { ApiError, handleApiError } from "@/lib/api-utils";
@@ -87,12 +87,24 @@ export async function POST(request: NextRequest) {
     try {
       writeFileSync(filepath, buffer);
       // Verify file was written
-      const stats = existsSync(filepath);
-      if (!stats) {
-        throw new Error("File was not saved successfully");
+      const fileExists = existsSync(filepath);
+      const fileStats = fileExists ? statSync(filepath) : null;
+      
+      if (!fileExists || !fileStats || fileStats.size === 0) {
+        throw new Error(
+          `File verification failed: exists=${fileExists}, size=${fileStats?.size || 0}`,
+        );
       }
+      console.log(`✓ File saved: ${filepath} (${fileStats.size} bytes)`);
     } catch (localError) {
-      console.error("Local file save failed:", localError);
+      console.error(
+        `✗ Local file save failed:`,
+        localError instanceof Error ? localError.message : localError,
+      );
+      throw new ApiError(
+        `Failed to save file: ${localError instanceof Error ? localError.message : "Unknown error"}`,
+        500,
+      );
     }
 
     // Return Blob URL if available, otherwise local URL
