@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { join } from "path";
 import { authenticateRequest, isAdmin } from "@/lib/auth";
 import { ApiError, handleApiError } from "@/lib/api-utils";
-import { put } from "@vercel/blob";
 
+const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+
+// Ensure upload directory exists
+if (!existsSync(UPLOAD_DIR)) {
+  mkdirSync(UPLOAD_DIR, { recursive: true });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,27 +52,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(7);
-    const extension = file.name.split(".").pop();
-    const filename = `${type}-${timestamp}-${random}.${extension}`;
+    // Use Vercel Blob in production, local storage in development
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      // Production: Use Vercel Blob Storage
+      const { put } = await import("@vercel/blob");
 
-    // Upload to Vercel Blob Storage
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const blob = await put(filename, buffer, {
-      access: "public",
-      contentType: file.type,
-    });
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const extension = file.name.split(".").pop();
+      const filename = `${type}-${timestamp}-${random}.${extension}`;
 
-    return NextResponse.json(
-      {
-        success: true,
-        url: blob.url,
-        filename: filename,
-      },
-      { status: 201 },
-    );
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const blob = await put(filename, buffer, {
+        access: "public",
+        contentType: file.type,
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+
+      return NextResponse.json(
+        {
+          success: true,
+          url: blob.url,
+          filename: filename,
+        },
+        { status: 201 },
+      );
+    } else {
+      // Development: Use local file system
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const extension = file.name.split(".").pop();
+      const filename = `${type}-${timestamp}-${random}.${extension}`;
+      const filepath = join(UPLOAD_DIR, filename);
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      writeFileSync(filepath, buffer);
+
+      const publicUrl = `/uploads/${filename}`;
+
+      return NextResponse.json(
+        {
+          success: true,
+          url: publicUrl,
+          filename: filename,
+        },
+        { status: 201 },
+      );
+    }
   } catch (error) {
     return handleApiError(error);
   }
