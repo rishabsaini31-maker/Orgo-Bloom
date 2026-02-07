@@ -49,13 +49,19 @@ export default function ProductCard({ product }: ProductCardProps) {
       return;
     }
 
+    // Use first image from images array, or fall back to imageUrl
+    const cartImage =
+      product.images && product.images.length > 0
+        ? product.images[0]
+        : product.imageUrl;
+
     addItem({
       productId: product.id,
       name: product.name,
       price: discountedPrice, // Use discounted price
       weight: product.weight,
       quantity: 1,
-      imageUrl: product.imageUrl ?? undefined,
+      imageUrl: cartImage ?? undefined,
       stock: product.stock,
     });
 

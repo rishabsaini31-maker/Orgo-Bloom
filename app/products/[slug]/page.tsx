@@ -78,13 +78,22 @@ export default function ProductDetailPage() {
       return;
     }
 
+    // Use currently selected image, or fall back to first image from images array, or imageUrl
+    let imageToAdd = currentImage;
+    if (!imageToAdd) {
+      imageToAdd =
+        product.images && product.images.length > 0
+          ? product.images[0]
+          : product.imageUrl;
+    }
+
     addItem({
       productId: product.id,
       name: product.name,
       price: discountedPrice, // Use discounted price
       weight: product.weight,
       quantity,
-      imageUrl: product.imageUrl,
+      imageUrl: imageToAdd || undefined,
       stock: product.stock,
     });
 
