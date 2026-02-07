@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import razorpay from "@/lib/razorpay";
+import { getRazorpayInstance } from "@/lib/razorpay";
 import { authenticateRequest } from "@/lib/auth";
 import { handleApiError, successResponse, ApiError } from "@/lib/api-utils";
 
@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Razorpay order
+    const razorpay = getRazorpayInstance();
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(order.total * 100), // Amount in paise
       currency: "INR",
