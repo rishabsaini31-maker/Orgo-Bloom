@@ -24,15 +24,15 @@ export default function LoginPage() {
       const response = await authApi.login(formData);
       const { user, token } = response.data;
 
+      // Prevent admin login from customer page
+      if (user.role === "ADMIN") {
+        toast.error("Admin accounts must login from the admin panel");
+        return;
+      }
+
       login(user, token);
       toast.success("Login successful!");
-
-      // Redirect based on role
-      if (user.role === "ADMIN") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push("/dashboard");
     } catch (error: any) {
       console.error("Login error full details:", error);
       console.error("Error response:", error.response);
