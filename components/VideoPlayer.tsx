@@ -73,7 +73,7 @@ export default function VideoPlayer({ videos }: VideoPlayerProps) {
       <video
         ref={videoRef}
         src={videos[currentVideoIndex]}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover border-8 border-primary-600/30 shadow-2xl"
         autoPlay
         muted
         playsInline

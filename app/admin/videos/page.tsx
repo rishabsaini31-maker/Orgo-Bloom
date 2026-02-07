@@ -248,7 +248,7 @@ export default function AdminVideosPage() {
                 {videos.map((videoUrl, index) => (
                   <div
                     key={index}
-                    className="relative bg-gray-100 rounded-lg overflow-hidden"
+                    className="relative bg-gray-100 rounded-lg overflow-hidden border-4 border-gray-300 shadow-lg hover:border-primary-500 transition-all"
                   >
                     <div className="aspect-video relative">
                       <video
