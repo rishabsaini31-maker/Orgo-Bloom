@@ -56,19 +56,17 @@ export async function POST(request: NextRequest) {
       `Starting upload: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
     );
 
-    // Generate simple filename - just timestamp and type
+    // Use absolute simplest filename format - just numbers.extension
     const timestamp = Date.now();
-    const randomHex = Math.random().toString(16).substring(2, 8); // Short hex: 6 chars
+    const random = Math.floor(Math.random() * 10000); // 4 digit random
     const extension =
       file.name
         .split(".")
         .pop()
-        ?.toLowerCase()
-        ?.replace(/[^a-z0-9]/g, "") || "bin";
+        ?.toLowerCase() || "bin";
 
-    // Super simple filename: just type + numbers + extension
-    const safeType = type.toLowerCase().replace(/[^a-z]/g, "");
-    const filename = `${safeType}${timestamp}.${extension}`;
+    // Most basic filename: timestamp-random.ext
+    const filename = `${timestamp}-${random}.${extension}`;
 
     console.log(`Generated filename: ${filename}`);
 
@@ -85,15 +83,14 @@ export async function POST(request: NextRequest) {
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         console.log(
-          `Attempting Blob upload: ${filename}, size: ${buffer.length} bytes, contentType: ${file.type}`,
+          `Attempting Blob upload: ${filename}, size: ${buffer.length} bytes`,
         );
 
         const { put } = await import("@vercel/blob");
 
-        // Upload to Vercel Blob - use simple filename with auto suffix
-        const blob = await put(filename, buffer, {
+        // Upload to Vercel Blob - simplest possible call
+        const blob = await put(filename, file, {
           access: "public",
-          addRandomSuffix: true, // Let Vercel add suffix to prevent conflicts
         });
 
         blobUrl = blob.url;
