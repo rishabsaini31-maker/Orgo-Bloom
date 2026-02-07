@@ -9,9 +9,19 @@ const MAX_FILE_SIZE = 150 * 1024 * 1024; // 150MB for large videos and images
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
 // Ensure upload directory exists
 if (!existsSync(UPLOAD_DIR)) {
   mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200, headers: CORS_HEADERS });
 }
 
 export async function POST(request: NextRequest) {
@@ -154,9 +164,16 @@ export async function POST(request: NextRequest) {
         savedTo: blobUrl ? "blob-storage" : "local-storage",
         environment: isProduction ? "production" : "development",
       },
-      { status: 201 },
+      { status: 201, headers: CORS_HEADERS },
     );
   } catch (error) {
-    return handleApiError(error);
+    const response = handleApiError(error);
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    response.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    );
+    return response;
   }
 }
