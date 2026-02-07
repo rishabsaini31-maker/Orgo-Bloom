@@ -128,7 +128,7 @@ export default function ProductDetailPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Images Collage */}
-            <div>
+            <div className="space-y-4">
               {allImages.length === 0 ? (
                 // No Images
                 <div className="relative h-96 lg:h-[500px] bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
@@ -149,59 +149,12 @@ export default function ProductDetailPage() {
                     <p className="text-lg">No Image Available</p>
                   </div>
                 </div>
-              ) : allImages.length === 1 ? (
-                // Single Image
-                <div className="relative h-96 lg:h-[500px] bg-gray-200 rounded-lg overflow-hidden group">
-                  <img
-                    src={allImages[0]}
-                    alt={product.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    onError={(e) => {
-                      console.error(`Failed to load image: ${allImages[0]}`);
-                      e.currentTarget.src = "/placeholder-product.jpg";
-                    }}
-                  />
-                  {/* 30% OFF Badge */}
-                  <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-lg z-10">
-                    {discountPercentage}% OFF
-                  </div>
-                </div>
-              ) : allImages.length === 2 ? (
-                // Two Images - Side by Side
-                <div className="grid grid-cols-2 gap-4 h-96 lg:h-[500px]">
-                  {allImages.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`relative bg-gray-200 rounded-lg overflow-hidden group transition-all ${
-                        selectedImageIndex === index
-                          ? "ring-4 ring-primary-600"
-                          : "hover:ring-2 hover:ring-gray-300"
-                      }`}
-                    >
-                      <img
-                        src={image}
-                        alt={`${product.name} ${index + 1}`}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        onError={(e) => {
-                          console.error(`Failed to load image: ${image}`);
-                        }}
-                      />
-                      {index === 0 && (
-                        <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg z-10">
-                          {discountPercentage}% OFF
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
               ) : (
-                // Three or More Images - Large + Small Grid
-                <div className="grid grid-cols-3 gap-4 h-96 lg:h-[500px]">
-                  {/* Large Main Image - Takes 2 columns */}
+                <>
+                  {/* Main Large Image - Always First Image */}
                   <button
                     onClick={() => setSelectedImageIndex(0)}
-                    className={`relative col-span-2 bg-gray-200 rounded-lg overflow-hidden group transition-all ${
+                    className={`relative w-full h-80 lg:h-96 bg-gray-200 rounded-lg overflow-hidden group transition-all ${
                       selectedImageIndex === 0
                         ? "ring-4 ring-primary-600"
                         : "hover:ring-2 hover:ring-gray-300"
@@ -220,66 +173,52 @@ export default function ProductDetailPage() {
                     <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-lg z-10">
                       {discountPercentage}% OFF
                     </div>
+                    {/* Image Counter Badge */}
+                    <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      1 / {allImages.length}
+                    </div>
                   </button>
 
-                  {/* Small Images Grid - Takes 1 column, stacked vertically */}
-                  <div className="col-span-1 flex flex-col gap-4">
-                    {allImages.slice(1, 3).map((image, index) => (
-                      <button
-                        key={index + 1}
-                        onClick={() => setSelectedImageIndex(index + 1)}
-                        className={`relative flex-1 bg-gray-200 rounded-lg overflow-hidden group transition-all ${
-                          selectedImageIndex === index + 1
-                            ? "ring-4 ring-primary-600"
-                            : "hover:ring-2 hover:ring-gray-300"
-                        }`}
-                      >
-                        <img
-                          src={image}
-                          alt={`${product.name} ${index + 2}`}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          onError={(e) => {
-                            console.error(`Failed to load image: ${image}`);
-                          }}
-                        />
-                        {/* Show count badge if there are more images */}
-                        {index === 1 && allImages.length > 3 && (
-                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <span className="text-white text-2xl font-bold">
-                              +{allImages.length - 3}
-                            </span>
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Bottom Thumbnails for More Images */}
-              {allImages.length > 3 && (
-                <div className="grid grid-cols-5 gap-2 mt-4">
-                  {allImages.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`relative h-16 bg-gray-200 rounded-md overflow-hidden transition-all ${
-                        selectedImageIndex === index
-                          ? "ring-2 ring-primary-600"
-                          : "hover:ring-2 hover:ring-gray-300"
+                  {/* Collage Grid - Remaining Images */}
+                  {allImages.length > 1 && (
+                    <div
+                      className={`grid gap-3 ${
+                        allImages.length === 2
+                          ? "grid-cols-1"
+                          : allImages.length === 3
+                            ? "grid-cols-2"
+                            : allImages.length === 4
+                              ? "grid-cols-2"
+                              : "grid-cols-3"
                       }`}
                     >
-                      <img
-                        src={image}
-                        alt={`${product.name} ${index + 1}`}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={(e) => {
-                          console.error(`Failed to load thumbnail: ${image}`);
-                        }}
-                      />
-                    </button>
-                  ))}
-                </div>
+                      {allImages.slice(1).map((image, index) => (
+                        <button
+                          key={index + 1}
+                          onClick={() => setSelectedImageIndex(index + 1)}
+                          className={`relative h-32 lg:h-40 bg-gray-200 rounded-lg overflow-hidden group transition-all ${
+                            selectedImageIndex === index + 1
+                              ? "ring-4 ring-primary-600"
+                              : "hover:ring-2 hover:ring-gray-300"
+                          }`}
+                        >
+                          <img
+                            src={image}
+                            alt={`${product.name} ${index + 2}`}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            onError={(e) => {
+                              console.error(`Failed to load image: ${image}`);
+                            }}
+                          />
+                          {/* Image Number Badge */}
+                          <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs font-medium">
+                            {index + 2}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
