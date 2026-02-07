@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
@@ -27,13 +28,7 @@ export default function ProductDetailPage() {
     ? product.price * (1 - discountPercentage / 100)
     : 0;
 
-  useEffect(() => {
-    if (slug) {
-      fetchProduct();
-    }
-  }, [slug]);
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await productApi.getBySlug(slug);
       setProduct(response.data.product);
@@ -52,7 +47,13 @@ export default function ProductDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug, router]);
+
+  useEffect(() => {
+    if (slug) {
+      fetchProduct();
+    }
+  }, [slug, fetchProduct]);
 
   // Get all available images
   const allImages = product
@@ -178,9 +179,10 @@ export default function ProductDetailPage() {
                         : "hover:ring-2 hover:ring-gray-300"
                     }`}
                   >
-                    <img
+                    <Image
                       src={allImages[0]}
                       alt={product.name}
+                      fill
                       className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         console.error(`Failed to load image: ${allImages[0]}`);
@@ -220,9 +222,10 @@ export default function ProductDetailPage() {
                               : "hover:ring-2 hover:ring-gray-300"
                           }`}
                         >
-                          <img
+                          <Image
                             src={image}
                             alt={`${product.name} ${index + 2}`}
+                            fill
                             className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                             onError={(e) => {
                               console.error(`Failed to load image: ${image}`);

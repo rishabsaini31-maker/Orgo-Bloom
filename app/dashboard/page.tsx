@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
@@ -15,16 +15,7 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!isAuthenticated || user?.role !== "CUSTOMER") {
-      router.push("/auth/login");
-      return;
-    }
-
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const response = await orderApi.getAll({ page: 1, limit: 10 });
       setOrders(response.data.orders);
@@ -33,7 +24,16 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== "CUSTOMER") {
+      router.push("/auth/login");
+      return;
+    }
+
+    fetchOrders();
+  }, [isAuthenticated, user?.role, router, fetchOrders]);
 
   const getStatusColor = (status: string) => {
     const colors: any = {

@@ -32,6 +32,7 @@ Customer Tracking
 ## Implementation Roadmap (8 Weeks)
 
 ### Week 1-2: Foundation
+
 **Objective**: Set up infrastructure and basic integration
 
 - [ ] Set up PostgreSQL database and Redis
@@ -43,6 +44,7 @@ Customer Tracking
 **Deliverable**: Working FSHiP authentication and token caching
 
 ### Week 3: Core Services
+
 **Objective**: Implement business logic layer
 
 - [ ] Build OrderService (create, confirm, cancel)
@@ -54,6 +56,7 @@ Customer Tracking
 **Deliverable**: Shipment creation with exponential backoff retry
 
 ### Week 4: API Routes
+
 **Objective**: Expose endpoints for CRUD operations
 
 - [ ] POST /api/orders (create order)
@@ -65,6 +68,7 @@ Customer Tracking
 **Deliverable**: Full API layer with authentication & validation
 
 ### Week 5: Webhook Integration
+
 **Objective**: Handle real-time shipment updates from FSHiP
 
 - [ ] Implement webhook signature verification
@@ -76,6 +80,7 @@ Customer Tracking
 **Deliverable**: Functional webhook handler for shipment updates
 
 ### Week 6: Admin Dashboard
+
 **Objective**: Admin interface for shipment management
 
 - [ ] Admin shipment list view (with filters/search)
@@ -87,6 +92,7 @@ Customer Tracking
 **Deliverable**: Operational admin panel for logistics management
 
 ### Week 7: Testing & Optimization
+
 **Objective**: Ensure reliability and performance
 
 - [ ] Integration tests for order-to-shipment flow
@@ -98,6 +104,7 @@ Customer Tracking
 **Deliverable**: Fully tested, optimized system
 
 ### Week 8: Deployment & Monitoring
+
 **Objective**: Production readiness
 
 - [ ] Set up Sentry error tracking
@@ -114,12 +121,14 @@ Customer Tracking
 ## Technology Stack Summary
 
 ### Frontend (Customer)
+
 - **Framework**: Next.js 14 (App Router)
 - **Styling**: TailwindCSS
 - **State**: Zustand (existing)
 - **Tracking**: Real-time AWB tracking UI
 
 ### Backend
+
 - **Runtime**: Node.js (Vercel Functions)
 - **Framework**: Next.js API Routes
 - **Language**: TypeScript
@@ -129,6 +138,7 @@ Customer Tracking
 - **Job Queue**: Redis Lists (message queue)
 
 ### External Services
+
 - **Logistics**: FSHiP API
 - **Payment**: Razorpay (existing)
 - **Monitoring**: Sentry
@@ -136,6 +146,7 @@ Customer Tracking
 - **Backups**: AWS S3
 
 ### Libraries
+
 ```json
 {
   "dependencies": {
@@ -162,6 +173,7 @@ Customer Tracking
 ## Key Configuration Files
 
 ### .env.production
+
 ```bash
 # FSHiP
 FSHIP_CLIENT_ID=your_client_id
@@ -191,6 +203,7 @@ LOG_LEVEL=info
 ```
 
 ### vercel.json
+
 ```json
 {
   "crons": [
@@ -207,6 +220,7 @@ LOG_LEVEL=info
 ```
 
 ### prisma.schema (additions)
+
 ```prisma
 model Order {
   id String @id @default(cuid())
@@ -361,13 +375,14 @@ model ShipmentErrorQueue {
 ## Testing Strategy
 
 ### Unit Tests
+
 ```typescript
 // lib/__tests__/fship-client.test.ts
 describe('FshipApiClient', () => {
   it('should authenticate and cache token', async () => {
     const token = await fshipClient.getAuthToken();
     expect(token).toBeDefined();
-    
+
     // Second call should use cache
     const token2 = await fshipClient.getAuthToken();
     expect(token2).toBe(token);
@@ -383,7 +398,7 @@ describe('FshipApiClient', () => {
     const payload = '{"event":"test"}';
     const signature = crypto.createHmac('sha256', secret)
       .update(payload).digest('hex');
-    
+
     expect(fshipClient.verifyWebhookSignature(payload, signature))
       .toBe(true);
   });
@@ -391,6 +406,7 @@ describe('FshipApiClient', () => {
 ```
 
 ### Integration Tests
+
 ```typescript
 // __tests__/shipment-flow.test.ts
 describe('Order to Shipment Flow', () => {
@@ -398,12 +414,12 @@ describe('Order to Shipment Flow', () => {
     // 1. Create order
     const order = await orderService.createOrder({...});
     expect(order.orderStatus).toBe('pending');
-    
+
     // 2. Confirm payment
     await orderService.confirmOrder(order.id);
     const updatedOrder = await db.order.findUnique({where: {id: order.id}});
     expect(updatedOrder.orderStatus).toBe('confirmed');
-    
+
     // 3. Process queue (simulate cron)
     await shipmentService.createShipment(order.id);
     const shipment = await db.shipment.findUnique({where: {orderId: order.id}});
@@ -413,32 +429,33 @@ describe('Order to Shipment Flow', () => {
 ```
 
 ### End-to-End Tests
+
 ```typescript
 // e2e/shipping.test.ts
 describe('Shipping E2E', () => {
   it('should handle full order lifecycle', async () => {
     // Simulate customer checkout → delivery
     const browser = await puppeteer.launch();
-    
+
     // Place order
     await page.goto('http://localhost:3000/checkout');
     await page.click('[data-testid="place-order"]');
-    
+
     // Complete payment
     await page.click('[data-testid="pay"]');
-    
+
     // Verify shipment creation
     await new Promise(r => setTimeout(r, 2000)); // Wait for queue
     const shipment = await db.shipment.findFirst();
     expect(shipment?.awbNumber).toBeDefined();
-    
+
     // Simulate webhook
     await fetch('http://localhost:3000/api/shipments/webhooks/fship', {
       method: 'POST',
       body: JSON.stringify({...delivered_event}),
       headers: {'x-fship-signature': signature}
     });
-    
+
     // Verify order delivered
     const order = await db.order.findUnique({where: {id: ...}});
     expect(order.orderStatus).toBe('delivered');
@@ -450,16 +467,16 @@ describe('Shipping E2E', () => {
 
 ## Common Issues & Troubleshooting
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| "Invalid signature" on webhook | Secret mismatch | Verify FSHIP_WEBHOOK_SECRET in .env |
-| Shipments stuck in "pending" | Error queue not processing | Check cron job running, check logs |
-| FSHiP API 400 errors | Invalid address format | Implement pincode validation |
-| Duplicate shipment creation | Idempotency key issue | Check shipment unique constraint |
-| High webhook latency | Database queue full | Increase worker processes |
-| Memory leak on Redis | Large cache entries | Set TTL on all cached keys |
-| Orders not tracking | Missing AWB number | Check shipment creation succeeded |
-| Customer sees wrong status | Webhook ordering issue | Use eventTimestamp to order events |
+| Issue                          | Cause                      | Solution                            |
+| ------------------------------ | -------------------------- | ----------------------------------- |
+| "Invalid signature" on webhook | Secret mismatch            | Verify FSHIP_WEBHOOK_SECRET in .env |
+| Shipments stuck in "pending"   | Error queue not processing | Check cron job running, check logs  |
+| FSHiP API 400 errors           | Invalid address format     | Implement pincode validation        |
+| Duplicate shipment creation    | Idempotency key issue      | Check shipment unique constraint    |
+| High webhook latency           | Database queue full        | Increase worker processes           |
+| Memory leak on Redis           | Large cache entries        | Set TTL on all cached keys          |
+| Orders not tracking            | Missing AWB number         | Check shipment creation succeeded   |
+| Customer sees wrong status     | Webhook ordering issue     | Use eventTimestamp to order events  |
 
 ---
 
@@ -467,14 +484,14 @@ describe('Shipping E2E', () => {
 
 ### Expected Performance (with optimizations)
 
-| Operation | Time | Notes |
-|-----------|------|-------|
-| Create order | 50-100ms | DB + validation |
-| Create shipment (FSHiP API) | 500-1500ms | Network + API |
-| Webhook processing | 50-200ms | Idempotency + DB update |
-| Get tracking (cached) | 5-10ms | Redis cache hit |
-| Get tracking (fresh) | 200-500ms | FSHiP API call |
-| Error queue retry | 100-300ms | Per-item processing |
+| Operation                   | Time       | Notes                   |
+| --------------------------- | ---------- | ----------------------- |
+| Create order                | 50-100ms   | DB + validation         |
+| Create shipment (FSHiP API) | 500-1500ms | Network + API           |
+| Webhook processing          | 50-200ms   | Idempotency + DB update |
+| Get tracking (cached)       | 5-10ms     | Redis cache hit         |
+| Get tracking (fresh)        | 200-500ms  | FSHiP API call          |
+| Error queue retry           | 100-300ms  | Per-item processing     |
 
 ### Load Test Expectations
 
@@ -500,17 +517,20 @@ Results:
 ## Maintenance Tasks
 
 ### Weekly
+
 - [ ] Check error queue size
 - [ ] Review error logs in Sentry
 - [ ] Verify webhook deliveries
 
 ### Monthly
+
 - [ ] Audit shipment creation metrics
 - [ ] Review FSHiP account for unused features
 - [ ] Test disaster recovery procedures
 - [ ] Update courier config caches
 
 ### Quarterly
+
 - [ ] Load testing with increased volume
 - [ ] Security audit (webhook signatures, token rotation)
 - [ ] Cost analysis and optimization
@@ -521,17 +541,19 @@ Results:
 ## Support & Resources
 
 ### FSHiP Documentation
+
 - API Docs: https://docs.fship.in
 - Webhook Events: https://docs.fship.in/webhooks
 - Address Validation: https://docs.fship.in/address-validation
 
 ### Monitoring Dashboards
+
 - Sentry: https://sentry.io/dashboard
 - Vercel Analytics: https://vercel.com/dashboard
 - Custom Metrics: Cloud Monitoring tool
 
 ### Contact
+
 - FSHiP Support: support@fship.in
 - Your Error Queue: `/api/admin/shipments/errors`
 - Production Logs: Vercel Functions logs
-

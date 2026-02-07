@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCartStore } from "@/store/cart-store";
 import { useFavoritesStore } from "@/store/favorites-store";
 import { formatPrice } from "@/lib/utils";
@@ -94,9 +95,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative h-48 bg-gray-200 group">
           {currentImage ? (
             <>
-              <img
+              <Image
                 src={currentImage}
                 alt={product.name}
+                fill
                 className="absolute inset-0 w-full h-full object-cover"
                 onError={(e) => {
                   console.error(`Failed to load image: ${currentImage}`);

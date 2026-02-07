@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import { productApi } from "@/lib/api-client";
 import { generateSlug } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
@@ -32,13 +33,7 @@ export default function EditProductPage() {
     isFeatured: false,
   });
 
-  useEffect(() => {
-    if (productId) {
-      fetchProduct();
-    }
-  }, [productId]);
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await productApi.getById(productId);
       const product = response.data.product;
@@ -65,7 +60,13 @@ export default function EditProductPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId, router]);
+
+  useEffect(() => {
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId, fetchProduct]);
 
   const handleNameChange = (name: string) => {
     setFormData({
@@ -400,9 +401,10 @@ export default function EditProductPage() {
                       key={index}
                       className="relative border border-gray-200 rounded-lg overflow-hidden bg-gray-100 h-32"
                     >
-                      <img
+                      <Image
                         src={image}
                         alt={`Product ${index + 1}`}
+                        fill
                         className="absolute inset-0 w-full h-full object-cover"
                         onError={(e) => {
                           console.error(`Failed to load image: ${image}`);

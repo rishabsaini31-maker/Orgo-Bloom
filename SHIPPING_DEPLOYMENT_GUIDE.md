@@ -91,7 +91,7 @@ export function initMonitoring() {
 // Use in API routes
 export function captureException(error: Error, context: any) {
   Sentry.captureException(error, {
-    extra: context
+    extra: context,
   });
 }
 ```
@@ -124,10 +124,10 @@ const order = await prisma.order.findUnique({
 });
 
 // Add indexes on frequently queried fields
-CREATE INDEX idx_order_customer_status 
+CREATE INDEX idx_order_customer_status
 ON orders(customer_id, order_status);
 
-CREATE INDEX idx_shipment_awb 
+CREATE INDEX idx_shipment_awb
 ON shipments(awb_number);
 ```
 
@@ -135,19 +135,19 @@ ON shipments(awb_number);
 
 ```typescript
 // Use connection pool for better performance
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
 // Single instance (connections are pooled internally)
 export const redis = new Redis({
   host: process.env.REDIS_HOST,
-  port: parseInt(process.env.REDIS_PORT || '6379'),
+  port: parseInt(process.env.REDIS_PORT || "6379"),
   maxRetriesPerRequest: 3,
   enableReadyCheck: true,
-  enableOfflineQueue: true
+  enableOfflineQueue: true,
 });
 
-redis.on('error', (err) => {
-  console.error('Redis connection error:', err);
+redis.on("error", (err) => {
+  console.error("Redis connection error:", err);
   // Implement fallback or alerting
 });
 ```
@@ -158,17 +158,17 @@ redis.on('error', (err) => {
 // Cache frequently accessed data
 export async function getCachedCourierConfig(courierId: string) {
   const cacheKey = `courier:config:${courierId}`;
-  
+
   let config = await redis.get(cacheKey);
   if (config) return JSON.parse(config);
-  
+
   config = await prisma.courierConfig.findUnique({
-    where: { courierId }
+    where: { courierId },
   });
-  
+
   // Cache for 7 days
   await redis.setex(cacheKey, 604800, JSON.stringify(config));
-  
+
   return config;
 }
 ```
@@ -179,23 +179,24 @@ export async function getCachedCourierConfig(courierId: string) {
 // For bulk shipment creation, process in batches
 async function createShipmentsInBatches(orderIds: string[], batchSize = 10) {
   const results = [];
-  
+
   for (let i = 0; i < orderIds.length; i += batchSize) {
     const batch = orderIds.slice(i, i + batchSize);
-    
+
     const batchResults = await Promise.all(
-      batch.map(orderId => 
-        shipmentService.createShipment(orderId)
-          .catch(error => ({ error, orderId }))
-      )
+      batch.map((orderId) =>
+        shipmentService
+          .createShipment(orderId)
+          .catch((error) => ({ error, orderId })),
+      ),
     );
-    
+
     results.push(...batchResults);
-    
+
     // Small delay between batches
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  
+
   return results;
 }
 ```
@@ -223,30 +224,33 @@ CREATE TABLE orders_2024_01 PARTITION OF orders
 
 ```typescript
 // For high traffic, use Redis Cluster
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
-const redis = new Redis.Cluster([
-  { host: 'redis-node-1', port: 6379 },
-  { host: 'redis-node-2', port: 6379 },
-  { host: 'redis-node-3', port: 6379 }
-], {
-  maxRedirections: 16,
-  retryDelayOnFailover: 100,
-  retryDelayOnClusterDown: 300
-});
+const redis = new Redis.Cluster(
+  [
+    { host: "redis-node-1", port: 6379 },
+    { host: "redis-node-2", port: 6379 },
+    { host: "redis-node-3", port: 6379 },
+  ],
+  {
+    maxRedirections: 16,
+    retryDelayOnFailover: 100,
+    retryDelayOnClusterDown: 300,
+  },
+);
 ```
 
 ### Load Testing Results (Expected)
 
 For organic fertilizer e-commerce with FSHiP:
 
-| Metric | Expected | Configuration |
-|--------|----------|----------------|
-| Concurrent Users | 10,000+ | Vercel Auto-scaling |
-| API Response Time (p95) | <200ms | Cached responses |
-| Shipment Creation Rate | 1000/min | With retries |
-| Webhook Processing | <100ms | Async with idempotency |
-| Database Connections | <100 | Connection pooling |
+| Metric                  | Expected | Configuration          |
+| ----------------------- | -------- | ---------------------- |
+| Concurrent Users        | 10,000+  | Vercel Auto-scaling    |
+| API Response Time (p95) | <200ms   | Cached responses       |
+| Shipment Creation Rate  | 1000/min | With retries           |
+| Webhook Processing      | <100ms   | Async with idempotency |
+| Database Connections    | <100     | Connection pooling     |
 
 ---
 
@@ -256,46 +260,56 @@ For organic fertilizer e-commerce with FSHiP:
 
 ```typescript
 // Using custom event tracking
-import { captureException } from '@/lib/monitoring';
+import { captureException } from "@/lib/monitoring";
 
 // 1. Shipment Creation Success Rate
-export async function trackShipmentCreation(success: boolean, duration: number) {
-  await sendMetric('shipment_creation', {
+export async function trackShipmentCreation(
+  success: boolean,
+  duration: number,
+) {
+  await sendMetric("shipment_creation", {
     success,
     duration_ms: duration,
-    timestamp: new Date()
+    timestamp: new Date(),
   });
 }
 
 // 2. FSHiP API Response Times
-export async function trackFshipApiCall(endpoint: string, duration: number, status: number) {
-  await sendMetric('fship_api_call', {
+export async function trackFshipApiCall(
+  endpoint: string,
+  duration: number,
+  status: number,
+) {
+  await sendMetric("fship_api_call", {
     endpoint,
     duration_ms: duration,
-    status_code: status
+    status_code: status,
   });
 }
 
 // 3. Webhook Processing
-export async function trackWebhookProcessing(eventType: string, duration: number, success: boolean) {
-  await sendMetric('webhook_processing', {
+export async function trackWebhookProcessing(
+  eventType: string,
+  duration: number,
+  success: boolean,
+) {
+  await sendMetric("webhook_processing", {
     event_type: eventType,
     duration_ms: duration,
-    success
+    success,
   });
 }
 
 // 4. Error Queue Size
 export async function monitorErrorQueue() {
   const queueSize = await prisma.shipmentErrorQueue.count({
-    where: { isResolved: false }
+    where: { isResolved: false },
   });
-  
+
   if (queueSize > 100) {
-    captureException(
-      new Error('Error queue exceeds threshold'),
-      { queue_size: queueSize }
-    );
+    captureException(new Error("Error queue exceeds threshold"), {
+      queue_size: queueSize,
+    });
   }
 }
 ```
@@ -306,30 +320,30 @@ export async function monitorErrorQueue() {
 // Critical alerts
 const alertRules = [
   {
-    name: 'High FSHiP API Failure Rate',
-    condition: 'error_rate > 5%',
-    action: 'page_oncall'
+    name: "High FSHiP API Failure Rate",
+    condition: "error_rate > 5%",
+    action: "page_oncall",
   },
   {
-    name: 'Webhook Signature Verification Failures',
-    condition: 'failed_verifications > 10/hour',
-    action: 'page_oncall'
+    name: "Webhook Signature Verification Failures",
+    condition: "failed_verifications > 10/hour",
+    action: "page_oncall",
   },
   {
-    name: 'Error Queue Grows Uncontrolled',
-    condition: 'error_queue_size > 500',
-    action: 'email_admin'
+    name: "Error Queue Grows Uncontrolled",
+    condition: "error_queue_size > 500",
+    action: "email_admin",
   },
   {
-    name: 'Redis Connection Pool Exhausted',
-    condition: 'redis_pool_utilization > 90%',
-    action: 'page_oncall'
+    name: "Redis Connection Pool Exhausted",
+    condition: "redis_pool_utilization > 90%",
+    action: "page_oncall",
   },
   {
-    name: 'Database Connection Limit Reached',
-    condition: 'db_connections > max_allowed',
-    action: 'page_oncall'
-  }
+    name: "Database Connection Limit Reached",
+    condition: "db_connections > max_allowed",
+    action: "page_oncall",
+  },
 ];
 ```
 
@@ -359,26 +373,26 @@ aws s3 cp backup-$(date +%Y%m%d).sql.gz s3://backups/orgobloom/
 export async function handleFshipDowntime() {
   const failedShipments = await prisma.shipment.findMany({
     where: {
-      shipmentStatus: 'pending',
+      shipmentStatus: "pending",
       creationAttempts: { gt: 0 },
-      isError: true
-    }
+      isError: true,
+    },
   });
-  
+
   for (const shipment of failedShipments) {
     // Increase next retry time
     await prisma.shipmentErrorQueue.updateMany({
       where: { shipmentId: shipment.id },
       data: {
-        nextRetryAt: new Date(Date.now() + 15 * 60000) // 15 min retry
-      }
+        nextRetryAt: new Date(Date.now() + 15 * 60000), // 15 min retry
+      },
     });
   }
-  
+
   // Alert admin
   await notifyAdmins({
-    subject: 'FSHiP API Outage - Manual Intervention May Be Needed',
-    body: `${failedShipments.length} shipments pending retry`
+    subject: "FSHiP API Outage - Manual Intervention May Be Needed",
+    body: `${failedShipments.length} shipments pending retry`,
   });
 }
 ```
@@ -387,14 +401,17 @@ export async function handleFshipDowntime() {
 
 ```typescript
 // Graceful degradation when Redis unavailable
-export async function getCachedDataWithFallback(key: string, dbQuery: () => any) {
+export async function getCachedDataWithFallback(
+  key: string,
+  dbQuery: () => any,
+) {
   try {
     const cached = await redis.get(key);
     if (cached) return JSON.parse(cached);
   } catch (redisError) {
-    console.warn('Redis unavailable, using database fallback:', redisError);
+    console.warn("Redis unavailable, using database fallback:", redisError);
   }
-  
+
   return dbQuery();
 }
 ```
@@ -410,13 +427,13 @@ export async function checkDatabaseHealth() {
   try {
     const result = await prisma.$queryRaw`SELECT 1`;
     if (dbDown) {
-      console.log('Database recovered');
+      console.log("Database recovered");
       dbDown = false;
     }
   } catch (error) {
     dbDown = true;
-    console.error('Database health check failed:', error);
-    
+    console.error("Database health check failed:", error);
+
     // Return 503 Service Unavailable
     return false;
   }
@@ -425,8 +442,8 @@ export async function checkDatabaseHealth() {
 // In API routes:
 if (dbDown) {
   return NextResponse.json(
-    { error: 'Service temporarily unavailable' },
-    { status: 503 }
+    { error: "Service temporarily unavailable" },
+    { status: 503 },
   );
 }
 ```
@@ -439,7 +456,7 @@ if (dbDown) {
 
 ```typescript
 // Always validate and sanitize inputs
-import { z } from 'zod';
+import { z } from "zod";
 
 const createShipmentSchema = z.object({
   orderId: z.string().uuid(),
@@ -447,8 +464,8 @@ const createShipmentSchema = z.object({
     name: z.string().min(2).max(255),
     email: z.string().email(),
     phone: z.string().regex(/^[6-9]\d{9}$/), // Indian phone format
-    pincode: z.string().regex(/^\d{6}$/) // Indian pincode format
-  })
+    pincode: z.string().regex(/^\d{6}$/), // Indian pincode format
+  }),
 });
 
 // Usage
@@ -461,11 +478,12 @@ const validated = createShipmentSchema.parse(requestBody);
 // Always use parameterized queries/ORM
 // ✅ Good - Using Prisma
 const order = await prisma.order.findUnique({
-  where: { id: orderId }
+  where: { id: orderId },
 });
 
 // ❌ Bad - Never do this
-const order = await prisma.$queryRaw`SELECT * FROM orders WHERE id = ${orderId}`;
+const order =
+  await prisma.$queryRaw`SELECT * FROM orders WHERE id = ${orderId}`;
 ```
 
 ### 3. Rate Limiting
@@ -473,24 +491,24 @@ const order = await prisma.$queryRaw`SELECT * FROM orders WHERE id = ${orderId}`
 ```typescript
 // Implement stricter rate limits for sensitive operations
 const rateLimits = {
-  'POST /api/orders': { limit: 10, window: 60 },
-  'POST /api/admin/shipments': { limit: 100, window: 60 },
-  'POST /api/shipments/webhooks/fship': { limit: 1000, window: 60 },
-  'GET /api/orders': { limit: 100, window: 60 }
+  "POST /api/orders": { limit: 10, window: 60 },
+  "POST /api/admin/shipments": { limit: 100, window: 60 },
+  "POST /api/shipments/webhooks/fship": { limit: 1000, window: 60 },
+  "GET /api/orders": { limit: 100, window: 60 },
 };
 
 // Use Redis for distributed rate limiting
 export async function enforceRateLimit(endpoint: string, clientId: string) {
   const limit = rateLimits[endpoint];
   if (!limit) return true;
-  
+
   const key = `rate:${endpoint}:${clientId}`;
   const count = await redis.incr(key);
-  
+
   if (count === 1) {
     await redis.expire(key, limit.window);
   }
-  
+
   return count <= limit.limit;
 }
 ```
@@ -499,11 +517,11 @@ export async function enforceRateLimit(endpoint: string, clientId: string) {
 
 ```typescript
 // Use short-lived tokens with refresh mechanism
-export function generateToken(user: User, expiresIn = '15m') {
+export function generateToken(user: User, expiresIn = "15m") {
   return jwt.sign(
     { userId: user.id, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn, algorithm: 'HS256' }
+    { expiresIn, algorithm: "HS256" },
   );
 }
 
@@ -512,10 +530,10 @@ export function verifyToken(token: string) {
   try {
     return jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      throw new Error('Token expired - please refresh');
+    if (error.name === "TokenExpiredError") {
+      throw new Error("Token expired - please refresh");
     }
-    throw new Error('Invalid token');
+    throw new Error("Invalid token");
   }
 }
 ```
@@ -528,36 +546,36 @@ export function verifyToken(token: string) {
 
 ```typescript
 // Use structured logging for better debugging
-import pino from 'pino';
+import pino from "pino";
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.LOG_LEVEL || "info",
   transport: {
-    target: 'pino-pretty',
+    target: "pino-pretty",
     options: {
       colorize: true,
-      ignore: 'pid,hostname'
-    }
-  }
+      ignore: "pid,hostname",
+    },
+  },
 });
 
 // Log shipment creation
 logger.info({
-  event: 'shipment_created',
+  event: "shipment_created",
   orderId,
   fshipShipmentId,
   awbNumber,
   courierPartner,
-  duration_ms
+  duration_ms,
 });
 
 // Log errors with context
 logger.error({
-  event: 'shipment_creation_failed',
+  event: "shipment_creation_failed",
   orderId,
   attempt,
   error: error.message,
-  stack: error.stack
+  stack: error.stack,
 });
 ```
 
@@ -565,7 +583,11 @@ logger.error({
 
 ```typescript
 // Log all webhook events for debugging
-export async function logWebhookEvent(payload: any, signature: string, isValid: boolean) {
+export async function logWebhookEvent(
+  payload: any,
+  signature: string,
+  isValid: boolean,
+) {
   await prisma.webhookLog.create({
     data: {
       eventId: payload.event_id,
@@ -574,8 +596,8 @@ export async function logWebhookEvent(payload: any, signature: string, isValid: 
       signature,
       signatureValid: isValid,
       receivedAt: new Date(),
-      processed: false
-    }
+      processed: false,
+    },
   });
 }
 
@@ -595,13 +617,13 @@ export async function logWebhookEvent(payload: any, signature: string, isValid: 
 
 ### Infrastructure Costs
 
-| Component | Cost | Optimization |
-|-----------|------|--------------|
-| Vercel (Next.js) | Pay-per-request | No minimum, scales to zero |
-| PostgreSQL (Neon) | $0.3/project | Use read replicas for queries |
-| Redis | ~$20-100/month | Cache aggressively |
-| Bandwidth | Per-GB | Use CDN for static assets |
-| Monitoring (Sentry) | ~$29/month | Use custom events for critical paths |
+| Component           | Cost            | Optimization                         |
+| ------------------- | --------------- | ------------------------------------ |
+| Vercel (Next.js)    | Pay-per-request | No minimum, scales to zero           |
+| PostgreSQL (Neon)   | $0.3/project    | Use read replicas for queries        |
+| Redis               | ~$20-100/month  | Cache aggressively                   |
+| Bandwidth           | Per-GB          | Use CDN for static assets            |
+| Monitoring (Sentry) | ~$29/month      | Use custom events for critical paths |
 
 ### Cost-Saving Measures
 
@@ -618,16 +640,16 @@ const shipment = await db.shipment.findUnique({
   include: {
     events: {
       take: 5, // Only recent events
-      orderBy: { timestamp: 'desc' }
-    }
-  }
+      orderBy: { timestamp: "desc" },
+    },
+  },
 });
 
 // 3. TTL-based data cleanup
 await db.shipmentEvent.deleteMany({
   where: {
-    createdAt: { lt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) } // 90 days old
-  }
+    createdAt: { lt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) }, // 90 days old
+  },
 });
 ```
 
@@ -663,4 +685,3 @@ await db.shipmentEvent.deleteMany({
 2. Check job queue: `LLEN job:queue:create_shipment`
 3. Review logs for processing delays
 4. If backed up: Trigger manual bulk shipment creation
-

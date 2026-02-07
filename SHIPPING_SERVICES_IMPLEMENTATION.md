@@ -7,8 +7,8 @@
 ```typescript
 // lib/fship-client.ts
 
-import Redis from 'ioredis';
-import crypto from 'crypto';
+import Redis from "ioredis";
+import crypto from "crypto";
 
 interface FshipConfig {
   baseUrl: string;
@@ -37,8 +37,8 @@ class FshipApiClient {
    * Caches in Redis with TTL before expiry
    */
   async getAuthToken(): Promise<string> {
-    const cacheKey = 'fship:auth:token';
-    
+    const cacheKey = "fship:auth:token";
+
     // Check Redis cache first
     const cachedToken = await this.redis.get(cacheKey);
     if (cachedToken) {
@@ -49,13 +49,13 @@ class FshipApiClient {
     // Request new token from FSHiP
     try {
       const response = await fetch(`${this.config.baseUrl}/v1/auth/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${Buffer.from(
-            `${this.config.clientId}:${this.config.clientSecret}`
-          ).toString('base64')}`
-        }
+          "Content-Type": "application/json",
+          Authorization: `Basic ${Buffer.from(
+            `${this.config.clientId}:${this.config.clientSecret}`,
+          ).toString("base64")}`,
+        },
       });
 
       if (!response.ok) {
@@ -66,12 +66,16 @@ class FshipApiClient {
       const token: AuthToken = {
         token: data.access_token,
         type: data.token_type,
-        expiresAt: new Date(Date.now() + (data.expires_in * 1000))
+        expiresAt: new Date(Date.now() + data.expires_in * 1000),
       };
 
       // Cache token in Redis (refresh 5 min before expiry)
       const ttlSeconds = (token.expiresAt.getTime() - Date.now()) / 1000 - 300;
-      await this.redis.setex(cacheKey, Math.floor(ttlSeconds), JSON.stringify(token));
+      await this.redis.setex(
+        cacheKey,
+        Math.floor(ttlSeconds),
+        JSON.stringify(token),
+      );
 
       return token.token;
     } catch (error) {
@@ -103,7 +107,7 @@ class FshipApiClient {
       quantity: number;
       weight: number; // kg
     }>;
-    paymentMethod: 'COD' | 'PREPAID';
+    paymentMethod: "COD" | "PREPAID";
     codAmount?: number; // Only for COD
   }): Promise<{
     shipmentId: string;
@@ -116,25 +120,25 @@ class FshipApiClient {
 
       // Calculate total weight
       const totalWeight = shipmentData.items.reduce(
-        (sum, item) => sum + (item.weight * item.quantity),
-        0
+        (sum, item) => sum + item.weight * item.quantity,
+        0,
       );
 
       const payload = {
         reference_id: shipmentData.orderId,
         order_reference: shipmentData.orderNumber,
-        
+
         // Shipping Address
         shipping_address: {
           name: shipmentData.customerName,
           email: shipmentData.customerEmail,
           phone: this.normalizePhone(shipmentData.customerPhone),
           address_line_1: shipmentData.deliveryAddress.line1,
-          address_line_2: shipmentData.deliveryAddress.line2 || '',
+          address_line_2: shipmentData.deliveryAddress.line2 || "",
           city: shipmentData.deliveryAddress.city,
           state: shipmentData.deliveryAddress.state,
           pincode: shipmentData.deliveryAddress.pincode,
-          country: shipmentData.deliveryAddress.country
+          country: shipmentData.deliveryAddress.country,
         },
 
         // Package Details
@@ -143,43 +147,43 @@ class FshipApiClient {
           dimensions: {
             length: 20,
             width: 15,
-            height: 10
+            height: 10,
           },
-          contents: shipmentData.items.map(item => ({
+          contents: shipmentData.items.map((item) => ({
             name: item.name,
             quantity: item.quantity,
-            weight: item.weight
-          }))
+            weight: item.weight,
+          })),
         },
 
         // Payment Method
         payment_method: shipmentData.paymentMethod,
-        ...(shipmentData.paymentMethod === 'COD' && {
-          cod_amount: shipmentData.codAmount
+        ...(shipmentData.paymentMethod === "COD" && {
+          cod_amount: shipmentData.codAmount,
         }),
 
         // Service Options
-        service_type: 'standard_delivery',
-        pickup_location: process.env.STORE_PINCODE || '110001'
+        service_type: "standard_delivery",
+        pickup_location: process.env.STORE_PINCODE || "110001",
       };
 
       const response = await fetch(
         `${this.config.baseUrl}/v1/shipments/create`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'X-Request-ID': crypto.randomUUID()
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "X-Request-ID": crypto.randomUUID(),
           },
-          body: JSON.stringify(payload)
-        }
+          body: JSON.stringify(payload),
+        },
       );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          `FSHiP create shipment failed: ${errorData.message || response.statusText}`
+          `FSHiP create shipment failed: ${errorData.message || response.statusText}`,
         );
       }
 
@@ -189,7 +193,7 @@ class FshipApiClient {
         shipmentId: result.shipment_id,
         awbNumber: result.awb_number,
         courierPartnerId: result.assigned_courier.id,
-        courierPartnerName: result.assigned_courier.name
+        courierPartnerName: result.assigned_courier.name,
       };
     } catch (error) {
       throw new Error(`Failed to create shipment on FSHiP: ${error.message}`);
@@ -218,9 +222,9 @@ class FshipApiClient {
         `${this.config.baseUrl}/v1/shipments/track/${awbNumber}`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
       if (!response.ok) {
@@ -233,15 +237,15 @@ class FshipApiClient {
         status: data.current_status,
         location: data.current_location,
         lastUpdate: new Date(data.last_update),
-        estimatedDelivery: data.estimated_delivery 
-          ? new Date(data.estimated_delivery) 
+        estimatedDelivery: data.estimated_delivery
+          ? new Date(data.estimated_delivery)
           : undefined,
         events: data.tracking_events.map((event: any) => ({
           timestamp: new Date(event.timestamp),
           status: event.status,
           location: event.location,
-          description: event.description
-        }))
+          description: event.description,
+        })),
       };
     } catch (error) {
       throw new Error(`Failed to get tracking: ${error.message}`);
@@ -258,15 +262,15 @@ class FshipApiClient {
       const response = await fetch(
         `${this.config.baseUrl}/v1/shipments/${shipmentId}/cancel`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            reason: 'Customer cancelled order'
-          })
-        }
+            reason: "Customer cancelled order",
+          }),
+        },
       );
 
       if (!response.ok) {
@@ -280,18 +284,15 @@ class FshipApiClient {
   /**
    * Verify webhook signature
    */
-  verifyWebhookSignature(
-    payload: string,
-    signature: string
-  ): boolean {
+  verifyWebhookSignature(payload: string, signature: string): boolean {
     const calculatedSignature = crypto
-      .createHmac('sha256', this.config.webhookSecret)
+      .createHmac("sha256", this.config.webhookSecret)
       .update(payload)
-      .digest('hex');
+      .digest("hex");
 
     return crypto.timingSafeEqual(
       Buffer.from(signature),
-      Buffer.from(calculatedSignature)
+      Buffer.from(calculatedSignature),
     );
   }
 
@@ -300,19 +301,19 @@ class FshipApiClient {
    */
   private normalizePhone(phone: string): string {
     // Remove all non-digits
-    let cleaned = phone.replace(/\D/g, '');
-    
+    let cleaned = phone.replace(/\D/g, "");
+
     // If starts with 0, remove it
-    if (cleaned.startsWith('0')) {
+    if (cleaned.startsWith("0")) {
       cleaned = cleaned.substring(1);
     }
-    
+
     // If doesn't start with 91, add it
-    if (!cleaned.startsWith('91')) {
-      cleaned = '91' + cleaned;
+    if (!cleaned.startsWith("91")) {
+      cleaned = "91" + cleaned;
     }
-    
-    return '+' + cleaned;
+
+    return "+" + cleaned;
   }
 }
 
@@ -326,9 +327,9 @@ export default FshipApiClient;
 ```typescript
 // lib/services/order-service.ts
 
-import { prisma } from '@/lib/prisma';
-import FshipApiClient from '@/lib/fship-client';
-import Redis from 'ioredis';
+import { prisma } from "@/lib/prisma";
+import FshipApiClient from "@/lib/fship-client";
+import Redis from "ioredis";
 
 interface CreateOrderPayload {
   customerId: string;
@@ -347,14 +348,14 @@ interface CreateOrderPayload {
     state: string;
     pincode: string;
   };
-  paymentMethod: 'RAZORPAY_PREPAID' | 'COD';
+  paymentMethod: "RAZORPAY_PREPAID" | "COD";
   razorpayPaymentId?: string;
 }
 
 export class OrderService {
   constructor(
     private fshipClient: FshipApiClient,
-    private redis: Redis
+    private redis: Redis,
   ) {}
 
   /**
@@ -374,7 +375,7 @@ export class OrderService {
 
       for (const item of payload.items) {
         const product = await prisma.product.findUnique({
-          where: { id: item.productId }
+          where: { id: item.productId },
         });
 
         if (!product) {
@@ -390,7 +391,7 @@ export class OrderService {
           unitPrice: item.unitPrice,
           totalPrice: itemTotal,
           productName: product.name,
-          productWeight: product.weight
+          productWeight: product.weight,
         });
       }
 
@@ -409,8 +410,8 @@ export class OrderService {
           discount: 0,
           totalAmount,
           paymentMethod: payload.paymentMethod,
-          paymentStatus: 'pending',
-          orderStatus: 'pending',
+          paymentStatus: "pending",
+          orderStatus: "pending",
           shippingName: payload.shippingAddress.name,
           shippingEmail: payload.shippingAddress.email,
           shippingPhone: payload.shippingAddress.phone,
@@ -421,16 +422,16 @@ export class OrderService {
           shippingPincode: payload.shippingAddress.pincode,
           razorpayPaymentId: payload.razorpayPaymentId,
           items: {
-            create: items
-          }
+            create: items,
+          },
         },
         include: {
           items: {
             include: {
-              product: true
-            }
-          }
-        }
+              product: true,
+            },
+          },
+        },
       });
 
       return order;
@@ -449,22 +450,22 @@ export class OrderService {
       const order = await prisma.order.update({
         where: { id: orderId },
         data: {
-          orderStatus: 'confirmed',
-          paymentStatus: 'completed'
+          orderStatus: "confirmed",
+          paymentStatus: "completed",
         },
         include: {
-          items: true
-        }
+          items: true,
+        },
       });
 
       // Queue shipment creation job
       await this.redis.lpush(
-        'job:queue:create_shipment',
+        "job:queue:create_shipment",
         JSON.stringify({
           orderId,
           createdAt: new Date().toISOString(),
-          attempt: 1
-        })
+          attempt: 1,
+        }),
       );
 
       return order;
@@ -480,16 +481,16 @@ export class OrderService {
     try {
       const order = await prisma.order.findUnique({
         where: { id: orderId },
-        include: { shipment: true }
+        include: { shipment: true },
       });
 
       if (!order) {
-        throw new Error('Order not found');
+        throw new Error("Order not found");
       }
 
       // Not cancelled if already shipped
-      if (order.shipment && order.shipment.shipmentStatus !== 'pending') {
-        throw new Error('Cannot cancel shipped order');
+      if (order.shipment && order.shipment.shipmentStatus !== "pending") {
+        throw new Error("Cannot cancel shipped order");
       }
 
       // Cancel associated shipment if exists
@@ -501,10 +502,10 @@ export class OrderService {
       await prisma.order.update({
         where: { id: orderId },
         data: {
-          orderStatus: 'cancelled',
+          orderStatus: "cancelled",
           cancelledAt: new Date(),
-          notes: reason
-        }
+          notes: reason,
+        },
       });
 
       return order;
@@ -522,14 +523,14 @@ export class OrderService {
 ```typescript
 // lib/services/shipment-service.ts
 
-import { prisma } from '@/lib/prisma';
-import FshipApiClient from '@/lib/fship-client';
-import Redis from 'ioredis';
+import { prisma } from "@/lib/prisma";
+import FshipApiClient from "@/lib/fship-client";
+import Redis from "ioredis";
 
 export class ShipmentService {
   constructor(
     private fshipClient: FshipApiClient,
-    private redis: Redis
+    private redis: Redis,
   ) {}
 
   /**
@@ -545,15 +546,15 @@ export class ShipmentService {
         where: { id: orderId },
         include: {
           items: {
-            include: { product: true }
+            include: { product: true },
           },
           customer: true,
-          shipment: true
-        }
+          shipment: true,
+        },
       });
 
       if (!order) {
-        throw new Error('Order not found');
+        throw new Error("Order not found");
       }
 
       // Prevent duplicate shipments
@@ -575,17 +576,18 @@ export class ShipmentService {
           city: order.shippingCity,
           state: order.shippingState,
           pincode: order.shippingPincode,
-          country: order.shippingCountry
+          country: order.shippingCountry,
         },
-        items: order.items.map(item => ({
+        items: order.items.map((item) => ({
           name: item.productName,
           quantity: item.quantity,
-          weight: this.extractWeight(item.productWeight)
+          weight: this.extractWeight(item.productWeight),
         })),
-        paymentMethod: order.paymentMethod === 'RAZORPAY_PREPAID' ? 'PREPAID' : 'COD',
-        ...(order.paymentMethod === 'COD' && {
-          codAmount: order.totalAmount
-        })
+        paymentMethod:
+          order.paymentMethod === "RAZORPAY_PREPAID" ? "PREPAID" : "COD",
+        ...(order.paymentMethod === "COD" && {
+          codAmount: order.totalAmount,
+        }),
       });
 
       // Store shipment in database
@@ -596,20 +598,21 @@ export class ShipmentService {
           awbNumber: fshipShipment.awbNumber,
           courierPartnerId: fshipShipment.courierPartnerId,
           courierPartnerName: fshipShipment.courierPartnerName,
-          shipmentStatus: 'created',
+          shipmentStatus: "created",
           weightKg: order.items.reduce(
-            (sum, item) => sum + this.extractWeight(item.productWeight) * item.quantity,
-            0
-          )
-        }
+            (sum, item) =>
+              sum + this.extractWeight(item.productWeight) * item.quantity,
+            0,
+          ),
+        },
       });
 
       // Update order status
       await prisma.order.update({
         where: { id: orderId },
         data: {
-          orderStatus: 'shipped'
-        }
+          orderStatus: "shipped",
+        },
       });
 
       return shipment;
@@ -617,22 +620,22 @@ export class ShipmentService {
       // Exponential backoff retry
       if (attempt < maxAttempts) {
         const retryDelayMs = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s, 8s, 16s
-        
+
         // Queue retry
         await this.redis.lpush(
-          'job:queue:create_shipment_retry',
+          "job:queue:create_shipment_retry",
           JSON.stringify({
             orderId,
             createdAt: new Date().toISOString(),
             attempt: attempt + 1,
-            nextRetryAt: new Date(Date.now() + retryDelayMs).toISOString()
-          })
+            nextRetryAt: new Date(Date.now() + retryDelayMs).toISOString(),
+          }),
         );
 
         // Also store in error queue
         const order = await prisma.order.findUnique({
           where: { id: orderId },
-          include: { shipment: true }
+          include: { shipment: true },
         });
 
         if (!order?.shipment) {
@@ -640,55 +643,56 @@ export class ShipmentService {
           const pendingShipment = await prisma.shipment.create({
             data: {
               orderId,
-              shipmentStatus: 'pending',
+              shipmentStatus: "pending",
               isError: true,
               creationAttempts: attempt,
               creationErrorMessage: error.message,
-              lastCreationAttemptAt: new Date()
-            }
+              lastCreationAttemptAt: new Date(),
+            },
           });
 
           await prisma.shipmentErrorQueue.create({
             data: {
               shipmentId: pendingShipment.id,
-              errorType: 'creation_failed',
+              errorType: "creation_failed",
               errorMessage: error.message,
               retryCount: attempt,
               maxRetries: maxAttempts,
-              nextRetryAt: new Date(Date.now() + retryDelayMs)
-            }
+              nextRetryAt: new Date(Date.now() + retryDelayMs),
+            },
           });
         }
       } else {
         // Max retries exceeded - requires manual intervention
         const order = await prisma.order.findUnique({
           where: { id: orderId },
-          include: { shipment: true }
+          include: { shipment: true },
         });
 
         if (!order?.shipment) {
           const errorShipment = await prisma.shipment.create({
             data: {
               orderId,
-              shipmentStatus: 'pending',
+              shipmentStatus: "pending",
               isError: true,
-              errorStatus: 'MANUAL_INTERVENTION_REQUIRED',
+              errorStatus: "MANUAL_INTERVENTION_REQUIRED",
               creationAttempts: attempt,
               creationErrorMessage: error.message,
-              lastCreationAttemptAt: new Date()
-            }
+              lastCreationAttemptAt: new Date(),
+            },
           });
 
           await prisma.shipmentErrorQueue.create({
             data: {
               shipmentId: errorShipment.id,
-              errorType: 'creation_failed',
+              errorType: "creation_failed",
               errorMessage: error.message,
               retryCount: attempt,
               maxRetries: maxAttempts,
               isResolved: true,
-              resolutionNotes: 'Max retries exceeded - requires admin intervention'
-            }
+              resolutionNotes:
+                "Max retries exceeded - requires admin intervention",
+            },
           });
         }
       }
@@ -706,13 +710,13 @@ export class ShipmentService {
         where: { id: shipmentId },
         include: {
           events: {
-            orderBy: { eventTimestamp: 'desc' }
-          }
-        }
+            orderBy: { eventTimestamp: "desc" },
+          },
+        },
       });
 
       if (!shipment?.awbNumber) {
-        throw new Error('Shipment not found or AWB not generated');
+        throw new Error("Shipment not found or AWB not generated");
       }
 
       // Get real-time tracking from FSHiP
@@ -722,7 +726,7 @@ export class ShipmentService {
       await this.redis.setex(
         `order:track:${shipment.orderId}`,
         1800,
-        JSON.stringify(tracking)
+        JSON.stringify(tracking),
       );
 
       return tracking;
@@ -740,37 +744,43 @@ export class ShipmentService {
         where: {
           isResolved: false,
           nextRetryAt: {
-            lte: new Date()
-          }
-        }
+            lte: new Date(),
+          },
+        },
       });
 
       for (const errorEntry of pendingErrors) {
         try {
           const shipment = await prisma.shipment.findUnique({
             where: { id: errorEntry.shipmentId },
-            include: { order: true }
+            include: { order: true },
           });
 
           if (!shipment) continue;
 
           // Retry shipment creation
-          await this.createShipment(shipment.orderId, errorEntry.retryCount + 1);
+          await this.createShipment(
+            shipment.orderId,
+            errorEntry.retryCount + 1,
+          );
 
           // Mark as resolved
           await prisma.shipmentErrorQueue.update({
             where: { id: errorEntry.id },
             data: {
               isResolved: true,
-              resolutionNotes: 'Retry successful'
-            }
+              resolutionNotes: "Retry successful",
+            },
           });
         } catch (retryError) {
-          console.error(`Retry failed for shipment ${errorEntry.shipmentId}:`, retryError);
+          console.error(
+            `Retry failed for shipment ${errorEntry.shipmentId}:`,
+            retryError,
+          );
         }
       }
     } catch (error) {
-      console.error('Error processing error queue:', error);
+      console.error("Error processing error queue:", error);
     }
   }
 
@@ -791,9 +801,9 @@ export class ShipmentService {
 ```typescript
 // lib/services/webhook-service.ts
 
-import { prisma } from '@/lib/prisma';
-import Redis from 'ioredis';
-import crypto from 'crypto';
+import { prisma } from "@/lib/prisma";
+import Redis from "ioredis";
+import crypto from "crypto";
 
 interface WebhookPayload {
   event_id: string;
@@ -822,13 +832,13 @@ export class WebhookService {
 
       if (alreadyProcessed) {
         console.log(`Webhook ${webhookId} already processed`);
-        return { status: 'already_processed' };
+        return { status: "already_processed" };
       }
 
       // Get shipment
       const shipment = await prisma.shipment.findUnique({
         where: { awbNumber: payload.awb_number },
-        include: { order: true }
+        include: { order: true },
       });
 
       if (!shipment) {
@@ -847,8 +857,8 @@ export class WebhookService {
           description: payload.description,
           webhookReceivedAt: new Date(),
           idempotencyKey,
-          processedAt: new Date()
-        }
+          processedAt: new Date(),
+        },
       });
 
       // Update shipment status based on event
@@ -859,26 +869,26 @@ export class WebhookService {
           data: {
             shipmentStatus: statusUpdate,
             lastDeliveryLocation: payload.location,
-            ...(statusUpdate === 'delivered' && {
-              actualDeliveryDate: new Date(payload.timestamp)
-            })
-          }
+            ...(statusUpdate === "delivered" && {
+              actualDeliveryDate: new Date(payload.timestamp),
+            }),
+          },
         });
       }
 
       // Update order status if final status
-      if (statusUpdate === 'delivered' || statusUpdate === 'rto') {
-        const orderStatus = statusUpdate === 'delivered' ? 'delivered' : 'rto';
+      if (statusUpdate === "delivered" || statusUpdate === "rto") {
+        const orderStatus = statusUpdate === "delivered" ? "delivered" : "rto";
         await prisma.order.update({
           where: { id: shipment.orderId },
-          data: { orderStatus }
+          data: { orderStatus },
         });
       }
 
       // Mark as processed in Redis (24-hour TTL)
-      await this.redis.setex(idempotencyKey, 86400, '1');
+      await this.redis.setex(idempotencyKey, 86400, "1");
 
-      return { status: 'processed', event };
+      return { status: "processed", event };
     } catch (error) {
       console.error(`Webhook processing failed: ${error.message}`);
       throw error;
@@ -890,32 +900,30 @@ export class WebhookService {
    */
   private mapEventType(fshipEventType: string): string {
     const mapping: Record<string, string> = {
-      'pickup_requested': 'pickup_requested',
-      'picked': 'picked',
-      'in_transit': 'in_transit',
-      'out_for_delivery': 'in_transit',
-      'delivered': 'delivered',
-      'delivery_failed': 'exception',
-      'rto_initiated': 'rto',
-      'rto_delivered': 'rto',
-      'cancelled': 'exception'
+      pickup_requested: "pickup_requested",
+      picked: "picked",
+      in_transit: "in_transit",
+      out_for_delivery: "in_transit",
+      delivered: "delivered",
+      delivery_failed: "exception",
+      rto_initiated: "rto",
+      rto_delivered: "rto",
+      cancelled: "exception",
     };
-    return mapping[fshipEventType] || 'exception';
+    return mapping[fshipEventType] || "exception";
   }
 
   /**
    * Map FSHiP event to shipment status
    */
-  private mapShipmentStatus(
-    fshipEventType: string
-  ): string | null {
+  private mapShipmentStatus(fshipEventType: string): string | null {
     const mapping: Record<string, string> = {
-      'picked': 'picked',
-      'in_transit': 'in_transit',
-      'out_for_delivery': 'in_transit',
-      'delivered': 'delivered',
-      'rto_initiated': 'rto',
-      'rto_delivered': 'rto'
+      picked: "picked",
+      in_transit: "in_transit",
+      out_for_delivery: "in_transit",
+      delivered: "delivered",
+      rto_initiated: "rto",
+      rto_delivered: "rto",
     };
     return mapping[fshipEventType] || null;
   }
@@ -929,26 +937,26 @@ export class WebhookService {
 ```typescript
 // lib/middleware/rate-limit.ts
 
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
 export async function checkRateLimit(
   redis: Redis,
   key: string,
   limit: number = 100,
-  windowSeconds: number = 60
+  windowSeconds: number = 60,
 ): Promise<{ allowed: boolean; remaining: number }> {
   const now = Date.now();
   const windowKey = `rate_limit:${key}:${Math.floor(now / (windowSeconds * 1000))}`;
 
   const count = await redis.incr(windowKey);
-  
+
   if (count === 1) {
     await redis.expire(windowKey, windowSeconds + 1);
   }
 
   return {
     allowed: count <= limit,
-    remaining: Math.max(0, limit - count)
+    remaining: Math.max(0, limit - count),
   };
 }
 ```
@@ -962,28 +970,36 @@ export async function checkRateLimit(
 
 export async function processBackgroundJobs() {
   const redis = new Redis(process.env.REDIS_URL);
-  const fshipClient = new FshipApiClient({ /* config */ }, redis);
+  const fshipClient = new FshipApiClient(
+    {
+      /* config */
+    },
+    redis,
+  );
   const shipmentService = new ShipmentService(fshipClient, redis);
 
   setInterval(async () => {
     try {
       // Process shipment creation queue
       while (true) {
-        const job = await redis.rpop('job:queue:create_shipment');
+        const job = await redis.rpop("job:queue:create_shipment");
         if (!job) break;
 
         const { orderId } = JSON.parse(job);
         try {
           await shipmentService.createShipment(orderId);
         } catch (error) {
-          console.error(`Failed to create shipment for order ${orderId}:`, error);
+          console.error(
+            `Failed to create shipment for order ${orderId}:`,
+            error,
+          );
         }
       }
 
       // Process error queue retries
       await shipmentService.processErrorQueue();
     } catch (error) {
-      console.error('Background job processor error:', error);
+      console.error("Background job processor error:", error);
     }
   }, 30000); // Run every 30 seconds
 }
@@ -1013,4 +1029,3 @@ REDIS_URL=redis://localhost:6379
 # Database
 DATABASE_URL=postgresql://...
 ```
-

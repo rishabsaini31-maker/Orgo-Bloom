@@ -9,20 +9,17 @@
 ```typescript
 // app/api/orders/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/auth';
-import { OrderService } from '@/lib/services/order-service';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
+import { OrderService } from "@/lib/services/order-service";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
     // Authenticate request
     const authResult = await verifyAuth(request);
     if (!authResult.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -30,25 +27,25 @@ export async function POST(request: NextRequest) {
     // Validate input
     const itemIds = body.items.map((i: any) => i.productId);
     const products = await prisma.product.findMany({
-      where: { id: { in: itemIds } }
+      where: { id: { in: itemIds } },
     });
 
     if (products.length !== itemIds.length) {
       return NextResponse.json(
-        { error: 'Some products not found' },
-        { status: 400 }
+        { error: "Some products not found" },
+        { status: 400 },
       );
     }
 
     // Create cart items with pricing
     const items = body.items.map((item: any) => {
-      const product = products.find(p => p.id === item.productId)!;
+      const product = products.find((p) => p.id === item.productId)!;
       const discountedPrice = product.price * 0.7; // 30% discount
 
       return {
         productId: item.productId,
         quantity: item.quantity,
-        unitPrice: discountedPrice
+        unitPrice: discountedPrice,
       };
     });
 
@@ -64,21 +61,21 @@ export async function POST(request: NextRequest) {
         address2: body.shippingAddress.addressLine2,
         city: body.shippingAddress.city,
         state: body.shippingAddress.state,
-        pincode: body.shippingAddress.pincode
+        pincode: body.shippingAddress.pincode,
       },
       paymentMethod: body.paymentMethod,
-      razorpayPaymentId: body.razorpayPaymentId
+      razorpayPaymentId: body.razorpayPaymentId,
     });
 
-    return NextResponse.json({
-      message: 'Order created successfully',
-      order
-    }, { status: 201 });
-  } catch (error: any) {
     return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
+      {
+        message: "Order created successfully",
+        order,
+      },
+      { status: 201 },
     );
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 ```
@@ -92,25 +89,25 @@ export async function POST(request: NextRequest) {
 ```typescript
 // app/api/admin/shipments/[id]/create-manual/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/auth';
-import { checkRateLimit } from '@/lib/middleware/rate-limit';
-import { ShipmentService } from '@/lib/services/shipment-service';
-import Redis from 'ioredis';
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/middleware/rate-limit";
+import { ShipmentService } from "@/lib/services/shipment-service";
+import Redis from "ioredis";
 
 const redis = new Redis(process.env.REDIS_URL!);
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     // Authenticate and verify admin role
     const authResult = await verifyAuth(request);
-    if (!authResult.user || authResult.user.role !== 'ADMIN') {
+    if (!authResult.user || authResult.user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
+        { error: "Admin access required" },
+        { status: 403 },
       );
     }
 
@@ -119,13 +116,13 @@ export async function POST(
       redis,
       `admin:${authResult.user.id}`,
       10, // 10 requests
-      60  // per 60 seconds
+      60, // per 60 seconds
     );
 
     if (!rateLimitCheck.allowed) {
       return NextResponse.json(
-        { error: 'Rate limit exceeded' },
-        { status: 429 }
+        { error: "Rate limit exceeded" },
+        { status: 429 },
       );
     }
 
@@ -138,29 +135,26 @@ export async function POST(
       include: {
         shipment: true,
         items: {
-          include: { product: true }
-        }
-      }
+          include: { product: true },
+        },
+      },
     });
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     if (order.shipment) {
       return NextResponse.json(
-        { error: 'Shipment already exists for this order' },
-        { status: 400 }
+        { error: "Shipment already exists for this order" },
+        { status: 400 },
       );
     }
 
-    if (order.orderStatus !== 'confirmed') {
+    if (order.orderStatus !== "confirmed") {
       return NextResponse.json(
-        { error: 'Order must be confirmed before creating shipment' },
-        { status: 400 }
+        { error: "Order must be confirmed before creating shipment" },
+        { status: 400 },
       );
     }
 
@@ -168,22 +162,22 @@ export async function POST(
     const shipmentService = new ShipmentService(fshipClient, redis);
     const shipment = await shipmentService.createShipment(orderId);
 
-    return NextResponse.json({
-      message: 'Shipment created successfully',
-      shipment
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        message: "Shipment created successfully",
+        shipment,
+      },
+      { status: 201 },
+    );
   } catch (error: any) {
     // Log error for monitoring
-    console.error('Shipment creation error:', {
+    console.error("Shipment creation error:", {
       orderId: params.id,
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 ```
@@ -197,10 +191,10 @@ export async function POST(
 ```typescript
 // app/api/shipments/webhooks/fship/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { WebhookService } from '@/lib/services/webhook-service';
-import FshipApiClient from '@/lib/fship-client';
-import Redis from 'ioredis';
+import { NextRequest, NextResponse } from "next/server";
+import { WebhookService } from "@/lib/services/webhook-service";
+import FshipApiClient from "@/lib/fship-client";
+import Redis from "ioredis";
 
 const redis = new Redis(process.env.REDIS_URL!);
 const fshipClient = new FshipApiClient(
@@ -208,38 +202,32 @@ const fshipClient = new FshipApiClient(
     baseUrl: process.env.FSHIP_BASE_URL!,
     clientId: process.env.FSHIP_CLIENT_ID!,
     clientSecret: process.env.FSHIP_CLIENT_SECRET!,
-    webhookSecret: process.env.FSHIP_WEBHOOK_SECRET!
+    webhookSecret: process.env.FSHIP_WEBHOOK_SECRET!,
   },
-  redis
+  redis,
 );
 
 export async function POST(request: NextRequest) {
   try {
     // Get raw body for signature verification
     const rawBody = await request.text();
-    const signature = request.headers.get('x-fship-signature');
+    const signature = request.headers.get("x-fship-signature");
 
     if (!signature) {
-      return NextResponse.json(
-        { error: 'Missing signature' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing signature" }, { status: 400 });
     }
 
     // Verify webhook signature
     const isValid = fshipClient.verifyWebhookSignature(rawBody, signature);
     if (!isValid) {
       // Log security incident
-      console.error('Invalid webhook signature', {
+      console.error("Invalid webhook signature", {
         signature,
         receivedAt: new Date().toISOString(),
-        ip: request.headers.get('x-forwarded-for')
+        ip: request.headers.get("x-forwarded-for"),
       });
 
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     // Parse payload
@@ -250,18 +238,18 @@ export async function POST(request: NextRequest) {
     const result = await webhookService.handleFshipWebhook(payload);
 
     // Always return 200 to FSHiP (idempotent)
-    return NextResponse.json({ status: 'processed' }, { status: 200 });
+    return NextResponse.json({ status: "processed" }, { status: 200 });
   } catch (error: any) {
-    console.error('Webhook processing error:', {
+    console.error("Webhook processing error:", {
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // Return 200 anyway to prevent FSHiP retries
     // Error is logged and manual intervention can be triggered
     return NextResponse.json(
-      { status: 'processing_error_logged' },
-      { status: 200 }
+      { status: "processing_error_logged" },
+      { status: 200 },
     );
   }
 }
@@ -271,10 +259,10 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-fship-signature'
-    }
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, x-fship-signature",
+    },
   });
 }
 ```
@@ -288,12 +276,12 @@ export async function OPTIONS() {
 ```typescript
 // app/api/orders/[id]/track/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/auth';
-import { ShipmentService } from '@/lib/services/shipment-service';
-import { prisma } from '@/lib/prisma';
-import Redis from 'ioredis';
-import FshipApiClient from '@/lib/fship-client';
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
+import { ShipmentService } from "@/lib/services/shipment-service";
+import { prisma } from "@/lib/prisma";
+import Redis from "ioredis";
+import FshipApiClient from "@/lib/fship-client";
 
 const redis = new Redis(process.env.REDIS_URL!);
 const fshipClient = new FshipApiClient(
@@ -301,23 +289,20 @@ const fshipClient = new FshipApiClient(
     baseUrl: process.env.FSHIP_BASE_URL!,
     clientId: process.env.FSHIP_CLIENT_ID!,
     clientSecret: process.env.FSHIP_CLIENT_SECRET!,
-    webhookSecret: process.env.FSHIP_WEBHOOK_SECRET!
+    webhookSecret: process.env.FSHIP_WEBHOOK_SECRET!,
   },
-  redis
+  redis,
 );
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     // Authenticate
     const authResult = await verifyAuth(request);
     if (!authResult.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const orderId = params.id;
@@ -329,33 +314,30 @@ export async function GET(
         shipment: {
           include: {
             events: {
-              orderBy: { eventTimestamp: 'desc' },
-              take: 10
-            }
-          }
-        }
-      }
+              orderBy: { eventTimestamp: "desc" },
+              take: 10,
+            },
+          },
+        },
+      },
     });
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    if (order.customerId !== authResult.user.id && authResult.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      );
+    if (
+      order.customerId !== authResult.user.id &&
+      authResult.user.role !== "ADMIN"
+    ) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     if (!order.shipment) {
       return NextResponse.json({
-        message: 'No shipment created yet',
+        message: "No shipment created yet",
         shipment: null,
-        tracking: null
+        tracking: null,
       });
     }
 
@@ -363,10 +345,10 @@ export async function GET(
     const cached = await redis.get(`order:track:${orderId}`);
     if (cached) {
       return NextResponse.json({
-        message: 'Tracking information',
+        message: "Tracking information",
         shipment: order.shipment,
         tracking: JSON.parse(cached),
-        cachedAt: new Date()
+        cachedAt: new Date(),
       });
     }
 
@@ -375,16 +357,13 @@ export async function GET(
     const tracking = await shipmentService.getTracking(order.shipment.id);
 
     return NextResponse.json({
-      message: 'Tracking information',
+      message: "Tracking information",
       shipment: order.shipment,
       tracking,
-      recentEvents: order.shipment.events
+      recentEvents: order.shipment.events,
     });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 ```
@@ -398,11 +377,11 @@ export async function GET(
 ```typescript
 // app/api/admin/shipments/bulk-create/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/auth';
-import { ShipmentService } from '@/lib/services/shipment-service';
-import { prisma } from '@/lib/prisma';
-import Redis from 'ioredis';
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
+import { ShipmentService } from "@/lib/services/shipment-service";
+import { prisma } from "@/lib/prisma";
+import Redis from "ioredis";
 
 const redis = new Redis(process.env.REDIS_URL!);
 
@@ -410,10 +389,10 @@ export async function POST(request: NextRequest) {
   try {
     // Authenticate admin
     const authResult = await verifyAuth(request);
-    if (!authResult.user || authResult.user.role !== 'ADMIN') {
+    if (!authResult.user || authResult.user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
+        { error: "Admin access required" },
+        { status: 403 },
       );
     }
 
@@ -422,15 +401,15 @@ export async function POST(request: NextRequest) {
 
     if (!Array.isArray(orderIds) || orderIds.length === 0) {
       return NextResponse.json(
-        { error: 'orderIds must be non-empty array' },
-        { status: 400 }
+        { error: "orderIds must be non-empty array" },
+        { status: 400 },
       );
     }
 
     if (orderIds.length > 100) {
       return NextResponse.json(
-        { error: 'Maximum 100 orders per request' },
-        { status: 400 }
+        { error: "Maximum 100 orders per request" },
+        { status: 400 },
       );
     }
 
@@ -443,35 +422,32 @@ export async function POST(request: NextRequest) {
         const shipment = await shipmentService.createShipment(orderId);
         results.push({
           orderId,
-          status: 'success',
-          shipmentId: shipment.id
+          status: "success",
+          shipmentId: shipment.id,
         });
       } catch (error: any) {
         results.push({
           orderId,
-          status: 'error',
-          error: error.message
+          status: "error",
+          error: error.message,
         });
       }
     }
 
-    const successCount = results.filter(r => r.status === 'success').length;
-    const failureCount = results.filter(r => r.status === 'error').length;
+    const successCount = results.filter((r) => r.status === "success").length;
+    const failureCount = results.filter((r) => r.status === "error").length;
 
     return NextResponse.json({
       message: `Processed ${orderIds.length} orders`,
       summary: {
         total: orderIds.length,
         successful: successCount,
-        failed: failureCount
+        failed: failureCount,
       },
-      results
+      results,
     });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 ```
@@ -487,10 +463,10 @@ This endpoint is called by a background task (cron job or scheduled task).
 ```typescript
 // app/api/internal/shipments/process-queue/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { ShipmentService } from '@/lib/services/shipment-service';
-import Redis from 'ioredis';
-import FshipApiClient from '@/lib/fship-client';
+import { NextRequest, NextResponse } from "next/server";
+import { ShipmentService } from "@/lib/services/shipment-service";
+import Redis from "ioredis";
+import FshipApiClient from "@/lib/fship-client";
 
 const redis = new Redis(process.env.REDIS_URL!);
 const fshipClient = new FshipApiClient(
@@ -498,14 +474,14 @@ const fshipClient = new FshipApiClient(
     baseUrl: process.env.FSHIP_BASE_URL!,
     clientId: process.env.FSHIP_CLIENT_ID!,
     clientSecret: process.env.FSHIP_CLIENT_SECRET!,
-    webhookSecret: process.env.FSHIP_WEBHOOK_SECRET!
+    webhookSecret: process.env.FSHIP_WEBHOOK_SECRET!,
   },
-  redis
+  redis,
 );
 
 // Verify internal request (e.g., from cron job)
 function verifyInternalRequest(request: NextRequest): boolean {
-  const token = request.headers.get('x-internal-token');
+  const token = request.headers.get("x-internal-token");
   return token === process.env.INTERNAL_API_TOKEN;
 }
 
@@ -513,10 +489,7 @@ export async function POST(request: NextRequest) {
   try {
     // Verify this is an internal request
     if (!verifyInternalRequest(request)) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const shipmentService = new ShipmentService(fshipClient, redis);
@@ -525,15 +498,12 @@ export async function POST(request: NextRequest) {
     await shipmentService.processErrorQueue();
 
     return NextResponse.json({
-      message: 'Error queue processed successfully',
-      timestamp: new Date().toISOString()
+      message: "Error queue processed successfully",
+      timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error('Error queue processing failed:', error);
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    console.error("Error queue processing failed:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 ```
@@ -564,6 +534,7 @@ Add to `vercel.json` for scheduled background jobs:
 ## Response Formats
 
 ### Successful Order Response
+
 ```json
 {
   "message": "Order created successfully",
@@ -571,7 +542,7 @@ Add to `vercel.json` for scheduled background jobs:
     "id": "uuid",
     "orderNumber": "ORD-1234567890-ABC123",
     "customerId": "uuid",
-    "totalAmount": 500.00,
+    "totalAmount": 500.0,
     "orderStatus": "pending",
     "paymentStatus": "pending",
     "items": [
@@ -579,8 +550,8 @@ Add to `vercel.json` for scheduled background jobs:
         "productId": "uuid",
         "productName": "Organic Fertilizer 1kg",
         "quantity": 2,
-        "unitPrice": 250.00,
-        "totalPrice": 500.00
+        "unitPrice": 250.0,
+        "totalPrice": 500.0
       }
     ],
     "createdAt": "2024-02-07T10:30:00Z"
@@ -589,6 +560,7 @@ Add to `vercel.json` for scheduled background jobs:
 ```
 
 ### Successful Shipment Response
+
 ```json
 {
   "message": "Shipment created successfully",
@@ -607,6 +579,7 @@ Add to `vercel.json` for scheduled background jobs:
 ```
 
 ### Tracking Response
+
 ```json
 {
   "message": "Tracking information",
@@ -643,6 +616,7 @@ Add to `vercel.json` for scheduled background jobs:
 ## Error Responses
 
 ### Rate Limit Exceeded
+
 ```json
 {
   "error": "Rate limit exceeded",
@@ -653,6 +627,7 @@ Add to `vercel.json` for scheduled background jobs:
 ```
 
 ### Invalid Signature
+
 ```json
 {
   "error": "Invalid signature",
@@ -661,10 +636,10 @@ Add to `vercel.json` for scheduled background jobs:
 ```
 
 ### Order Not Found
+
 ```json
 {
   "error": "Order not found",
   "status": 404
 }
 ```
-

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { productApi } from "@/lib/api-client";
 import { generateSlug } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
@@ -352,9 +353,10 @@ export default function NewProductPage() {
                       key={index}
                       className="relative border border-gray-200 rounded-lg overflow-hidden bg-gray-100 h-32"
                     >
-                      <img
+                      <Image
                         src={image}
                         alt={`Product ${index + 1}`}
+                        fill
                         className="absolute inset-0 w-full h-full object-cover"
                         onError={(e) => {
                           console.error(`Failed to load image: ${image}`);

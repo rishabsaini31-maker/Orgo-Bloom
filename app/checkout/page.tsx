@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -40,29 +40,14 @@ export default function CheckoutPage() {
   const shipping = subtotal >= 999 ? 0 : 50;
   const total = subtotal + shipping;
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/auth/login");
-      return;
-    }
-
-    if (items.length === 0) {
-      router.push("/cart");
-      return;
-    }
-
-    fetchAddresses();
-    loadRazorpayScript();
-  }, []);
-
-  const loadRazorpayScript = () => {
+  const loadRazorpayScript = useCallback(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
     document.body.appendChild(script);
-  };
+  }, []);
 
-  const fetchAddresses = async () => {
+  const fetchAddresses = useCallback(async () => {
     try {
       const response = await addressApi.getAll();
       setAddresses(response.data.addresses);
@@ -76,7 +61,28 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Error fetching addresses:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (items.length === 0) {
+      router.push("/cart");
+      return;
+    }
+
+    fetchAddresses();
+    loadRazorpayScript();
+  }, [
+    isAuthenticated,
+    items.length,
+    router,
+    fetchAddresses,
+    loadRazorpayScript,
+  ]);
 
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();

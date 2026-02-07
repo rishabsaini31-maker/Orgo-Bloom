@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { adminApi, orderApi } from "@/lib/api-client";
 import { formatPrice, formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -17,11 +17,7 @@ export default function AdminOrdersPage() {
     notes: "",
   });
 
-  useEffect(() => {
-    fetchOrders();
-  }, [filter]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const params: any = { page: 1, limit: 50 };
       if (filter) params.status = filter;
@@ -33,7 +29,11 @@ export default function AdminOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handleUpdateOrder = async (e: React.FormEvent) => {
     e.preventDefault();

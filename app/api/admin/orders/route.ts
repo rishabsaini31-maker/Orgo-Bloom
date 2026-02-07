@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { authenticateRequest, isAdmin } from "@/lib/auth";
 import { handleApiError, successResponse, ApiError } from "@/lib/api-utils";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
