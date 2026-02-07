@@ -94,7 +94,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <img
                   src={currentImage}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
                   onError={(e) => {
                     console.error(`Failed to load image: ${currentImage}`);
                   }}

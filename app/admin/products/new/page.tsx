@@ -349,12 +349,12 @@ export default function NewProductPage() {
                   {formData.images.map((image, index) => (
                     <div
                       key={index}
-                      className="relative border border-gray-200 rounded-lg overflow-hidden bg-gray-100"
+                      className="relative border border-gray-200 rounded-lg overflow-hidden bg-gray-100 h-32"
                     >
                       <img
                         src={image}
                         alt={`Product ${index + 1}`}
-                        className="w-full h-32 object-cover"
+                        className="absolute inset-0 w-full h-full object-cover"
                         onError={(e) => {
                           console.error(`Failed to load image: ${image}`);
                           (e.target as HTMLImageElement).src =

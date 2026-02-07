@@ -123,7 +123,7 @@ export default function ProductDetailPage() {
                     <img
                       src={product.imageUrl}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover"
                       onError={(e) => {
                         console.error(
                           `Failed to load image: ${product.imageUrl}`,
