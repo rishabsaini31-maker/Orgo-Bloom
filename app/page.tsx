@@ -4,6 +4,10 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import VideoPlayer from "@/components/VideoPlayer";
 
+// Disable caching to always show fresh videos
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getVideos() {
   try {
     const { prisma } = await import("@/lib/prisma");
