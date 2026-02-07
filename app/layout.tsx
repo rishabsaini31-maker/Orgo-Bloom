@@ -11,6 +11,10 @@ export const metadata: Metadata = {
     "Premium organic cow manure fertilizers for healthy gardens and farms",
   keywords:
     "organic fertilizer, cow manure, organic farming, natural fertilizer",
+  icons: {
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
 };
 
 export default function RootLayout({
