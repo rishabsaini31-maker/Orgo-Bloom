@@ -38,11 +38,13 @@ Vercel will automatically deploy with Blob Storage enabled.
 ## Testing Uploads
 
 ### In Development (localhost:9000)
+
 - Uses local filesystem at `public/uploads/`
 - No Blob Storage needed
 - Files saved directly to disk
 
 ### In Production (Vercel)
+
 - Requires `BLOB_READ_WRITE_TOKEN` environment variable
 - Files uploaded to Vercel Blob Storage
 - Returns permanent URLs like: `https://xxxxx.public.blob.vercel-storage.com/uploads/video-xxxxx.mp4`
@@ -57,25 +59,32 @@ Vercel will automatically deploy with Blob Storage enabled.
 ## Troubleshooting
 
 ### Error: "The string did not match the expected pattern"
+
 **Fixed in latest version**. This was caused by:
+
 - Non-URL-safe characters in filenames
 - Missing the `token` parameter when not using default env vars
 - Incorrect blob path format
 
-**Solution**: 
+**Solution**:
+
 - Filenames are now sanitized (alphanumeric only)
 - Uses `uploads/` folder structure
 - Removed explicit token parameter (uses default env var)
 
 ### Error: "Cloud storage not configured"
+
 This means the app is running on Vercel but `BLOB_READ_WRITE_TOKEN` is not set.
 
-**Solution**: 
+**Solution**:
+
 1. Enable Blob Storage in Vercel dashboard (see Step 1 above)
 2. Redeploy the application
 
 ### Error: "Failed to upload to cloud storage"
+
 Check Vercel function logs for detailed error message:
+
 1. Go to **Deployments** in Vercel dashboard
 2. Click on latest deployment
 3. Go to **Functions** tab
@@ -84,11 +93,13 @@ Check Vercel function logs for detailed error message:
 ## File URLs
 
 ### Development
+
 ```
 http://localhost:9000/uploads/video-1234567890-abc123.mp4
 ```
 
 ### Production (Blob Storage)
+
 ```
 https://xxxxx.public.blob.vercel-storage.com/uploads/video-1234567890-abc123.mp4
 ```
@@ -96,6 +107,7 @@ https://xxxxx.public.blob.vercel-storage.com/uploads/video-1234567890-abc123.mp4
 ## Cost
 
 Vercel Blob Storage pricing:
+
 - **Hobby plan**: 100GB storage, 100GB bandwidth/month (FREE)
 - **Pro plan**: 1TB storage, 1TB bandwidth/month (included)
 
