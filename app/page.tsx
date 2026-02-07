@@ -68,33 +68,33 @@ export default async function HomePage() {
         </section>
 
         {/* Our Products For Sale */}
-        <section className="py-16">
+        <section className="py-20 bg-gradient-to-b from-white to-gray-50">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
               <div>
-                <h2 className="text-3xl font-bold mb-2">
+                <h2 className="section-title mb-3">
                   Our Products For Sale
                 </h2>
-                <p className="text-gray-600">
-                  Premium organic fertilizers - Transform your garden naturally
+                <p className="section-subtitle">
+                  Premium organic fertilizers crafted to transform your garden naturally and sustainably
                 </p>
               </div>
               <Link
                 href="/products"
-                className="text-primary-600 hover:text-primary-700 font-semibold"
+                className="btn btn-primary mt-4 md:mt-0 whitespace-nowrap"
               >
-                View All →
+                View All Products →
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.length > 0 ? (
                 products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))
               ) : (
-                <div className="col-span-3 text-center py-12">
-                  <p className="text-gray-500">
+                <div className="col-span-3 text-center py-16">
+                  <p className="text-gray-500 text-lg">
                     No products available. Please add products from the admin
                     panel.
                   </p>

@@ -90,16 +90,16 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-xl shadow-elegant hover:shadow-elegant-lg transition-all duration-300 overflow-hidden group">
       <Link href={`/products/${product.slug}`}>
-        <div className="relative h-48 bg-gray-200 group">
+        <div className="relative h-56 bg-gradient-to-br from-gray-200 to-gray-100 group">
           {currentImage ? (
             <>
               <Image
                 src={currentImage}
                 alt={product.name}
                 fill
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
                   console.error(`Failed to load image: ${currentImage}`);
                   e.currentTarget.src = "/placeholder-product.jpg";
@@ -109,7 +109,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <button
                 type="button"
                 onClick={handleToggleFavorite}
-                className="absolute top-2 left-2 z-10 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                className="absolute top-3 right-3 z-10 bg-white/90 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 hover:bg-white"
               >
                 <svg
                   className={`w-6 h-6 ${isFav ? "text-red-500 fill-current" : "text-gray-400"}`}
@@ -127,13 +127,13 @@ export default function ProductCard({ product }: ProductCardProps) {
               </button>
 
               {/* 30% OFF Badge */}
-              <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+              <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                 {discountPercentage}% OFF
               </div>
 
               {/* Image Counter */}
               {hasMultipleImages && (
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white px-2 py-1 rounded text-xs">
+                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium">
                   {currentImageIndex + 1}/{productImages.length}
                 </div>
               )}
@@ -182,34 +182,38 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
 
-      <div className="p-4">
+      <div className="p-5">
         <Link href={`/products/${product.slug}`}>
-          <h3 className="font-semibold text-lg mb-2 hover:text-primary-600">
+          <h3 className="font-bold text-lg text-gray-900 mb-2 hover:text-primary-600 transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
 
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">
           {product.description}
         </p>
 
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex flex-col">
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+          <div className="flex flex-col gap-1">
             {/* Original Price (Strikethrough) */}
-            <span className="text-sm text-gray-400 line-through">
+            <span className="text-xs text-gray-400 line-through font-medium">
               {formatPrice(product.price)}
             </span>
             {/* Discounted Price */}
-            <span className="text-2xl font-bold text-primary-600">
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
               {formatPrice(discountedPrice)}
             </span>
           </div>
-          <span className="text-sm text-gray-500">{product.weight}</span>
+          <div className="text-right">
+            <span className="inline-block bg-primary-50 text-primary-700 text-xs font-semibold px-3 py-1 rounded-full">
+              {product.weight}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <span
-            className={`text-sm ${product.stock > 0 ? "text-green-600" : "text-red-600"}`}
+            className={`text-xs font-semibold px-3 py-1 rounded-full ${product.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
           >
             {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
           </span>
@@ -217,7 +221,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleAddToCart}
             disabled={product.stock <= 0}
-            className="btn btn-primary text-sm"
+            className="btn btn-primary text-sm py-2 px-4 flex-1"
           >
             Add to Cart
           </button>
