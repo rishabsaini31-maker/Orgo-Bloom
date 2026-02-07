@@ -96,11 +96,6 @@ export default async function HomePage() {
                   </p>
                 </div>
               )}
-                  imageUrl:
-                    "https://images.unsplash.com/photo-1592419044706-39796d40f98c?w=500&h=500&fit=crop",
-                  stock: 75,
-                }}
-              />
             </div>
           </div>
         </section>

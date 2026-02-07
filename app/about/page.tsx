@@ -28,9 +28,9 @@ export default function AboutPage() {
                 agriculture and the power of natural nutrients.
               </p>
               <p className="text-gray-600 mb-4">
-                Our journey began when we recognized the need for reliable,
-                eco-friendly fertilizer solutions that don't compromise on
-                effectiveness. Today, we serve thousands of customers across the
+                {
+                  "Our journey began when we recognized the need for reliable, eco-friendly fertilizer solutions that don't compromise on effectiveness. Today, we serve thousands of customers across the"
+                }
                 country, helping them grow healthier crops and gardens.
               </p>
             </div>

@@ -53,7 +53,7 @@ export default function ContactPage() {
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
           <p className="text-xl text-primary-100 max-w-2xl">
-            We'd love to hear from you. Get in touch with our team.
+            {"We'd love to hear from you. Get in touch with our team."}
           </p>
         </div>
       </section>
@@ -159,8 +159,9 @@ export default function ContactPage() {
 
             {submitStatus === "success" && (
               <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg">
-                Thank you! Your message has been sent successfully. We'll get
-                back to you soon.
+                {
+                  "Thank you! Your message has been sent successfully. We'll get back to you soon."
+                }
               </div>
             )}
 
@@ -310,8 +311,9 @@ export default function ContactPage() {
                 What Our Customers Say
               </h2>
               <p className="text-lg text-gray-600">
-                Don't just take our word for it - hear from our satisfied
-                customers
+                {
+                  "Don't just take our word for it - hear from our satisfied customers"
+                }
               </p>
             </div>
 
@@ -326,8 +328,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <p className="text-gray-700 mb-6">
-                  "Orgobloom's products have transformed my garden. The quality
-                  is exceptional and my plants have never looked better!"
+                  {`"Orgobloom's products have transformed my garden. The quality is exceptional and my plants have never looked better!"`}
                 </p>
                 <p className="font-semibold text-gray-800">Rajesh Kumar</p>
                 <p className="text-sm text-gray-600">Delhi, India</p>
@@ -343,9 +344,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <p className="text-gray-700 mb-6">
-                  "Best organic fertilizer I've used. Affordable, reliable
-                  delivery, and the customer service is outstanding. Highly
-                  recommended!"
+                  {`"Best organic fertilizer I've used. Affordable, reliable delivery, and the customer service is outstanding. Highly recommended!"`}
                 </p>
                 <p className="font-semibold text-gray-800">Priya Singh</p>
                 <p className="text-sm text-gray-600">Mumbai, India</p>
@@ -361,8 +360,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <p className="text-gray-700 mb-6">
-                  "Using Orgobloom fertilizers has increased my crop yield
-                  significantly. Great product at competitive prices!"
+                  {`"Using Orgobloom fertilizers has increased my crop yield significantly. Great product at competitive prices!"`}
                 </p>
                 <p className="font-semibold text-gray-800">Arun Patel</p>
                 <p className="text-sm text-gray-600">Gujarat, India</p>

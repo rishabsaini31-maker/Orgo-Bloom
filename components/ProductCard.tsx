@@ -16,7 +16,7 @@ interface ProductCardProps {
     price: number;
     weight: string;
     stock: number;
-    imageUrl?: string;
+    imageUrl?: string | null;
     images?: string[];
     description: string;
   };
@@ -56,7 +56,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       price: discountedPrice, // Use discounted price
       weight: product.weight,
       quantity: 1,
-      imageUrl: product.imageUrl,
+      imageUrl: product.imageUrl ?? undefined,
       stock: product.stock,
     });
 
@@ -77,7 +77,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         slug: product.slug,
         price: discountedPrice,
         weight: product.weight,
-        imageUrl: product.imageUrl,
+        imageUrl: product.imageUrl ?? undefined,
       });
       toast.success("Added to favorites!");
     }
