@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { useFavoritesStore } from "@/store/favorites-store";
@@ -15,8 +15,13 @@ export default function Header() {
   const { getTotalItems } = useCartStore();
   const { favorites } = useFavoritesStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
 
-  const isActive = (path: string) => pathname === path;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isActive = (path: string) => mounted && pathname === path;
 
   const handleLogout = () => {
     logout();
