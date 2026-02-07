@@ -68,9 +68,6 @@ export async function POST(request: NextRequest) {
 
     console.log(`Generated blob name: ${blobName}`);
 
-    // Convert file to buffer for saving
-    const buffer = Buffer.from(await file.arrayBuffer());
-
     let blobUrl: string | null = null;
     let localSaved = false;
 
@@ -81,18 +78,15 @@ export async function POST(request: NextRequest) {
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         console.log(
-          `Attempting Blob upload: ${blobName}, contentType: ${file.type}, size: ${buffer.length} bytes`,
+          `Attempting Blob upload: ${blobName}, size: ${file.size} bytes`,
         );
 
         const { put } = await import("@vercel/blob");
 
-        // Create a proper Blob object from buffer with correct content type
-        const blob = new Blob([buffer], { type: file.type });
-
-        // Upload to Vercel Blob - use blob object instead of file
-        const result = await put(blobName, blob, {
+        // Upload to Vercel Blob - use File directly and let the SDK handle type
+        const result = await put(blobName, file, {
           access: "public",
-          contentType: file.type,
+          addRandomSuffix: true,
         });
 
         blobUrl = result.url;
@@ -118,6 +112,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // 2. Local file system (development only)
+      const buffer = Buffer.from(await file.arrayBuffer());
       const filepath = join(UPLOAD_DIR, localFilename);
       try {
         writeFileSync(filepath, buffer);
@@ -154,7 +149,7 @@ export async function POST(request: NextRequest) {
         success: true,
         url: publicUrl,
         filename: blobUrl ? blobName : localFilename,
-        size: buffer.length,
+        size: file.size,
         contentType: file.type,
         savedTo: blobUrl ? "blob-storage" : "local-storage",
         environment: isProduction ? "production" : "development",
