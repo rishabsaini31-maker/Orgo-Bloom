@@ -25,23 +25,28 @@
 The videos are stored in the `settings` table with key `homepage_videos`.
 
 **Check this:**
+
 1. Go to your Neon database dashboard
 2. Run this query:
+
 ```sql
 SELECT * FROM settings WHERE key = 'homepage_videos';
 ```
 
 **If empty or missing:**
+
 - Videos were never saved
 - Need to upload videos again through admin panel
 
 #### Step 3: Check for Local File URLs
 
 If you see URLs like `/uploads/video-xxxxx.mp4` in database:
+
 - These are LOCAL file paths (won't work on Vercel)
 - Need to delete these and re-upload using Blob Storage
 
 **Fix it:**
+
 1. Go to your deployed site admin: `https://your-site.vercel.app/admin/settings`
 2. Delete old videos
 3. Upload new videos (will use Blob Storage)
@@ -56,6 +61,7 @@ This error occurs when uploading files to Vercel Blob Storage.
 ### Latest Fix (Commit: edf92bc)
 
 We changed the upload logic to:
+
 - Create a proper `Blob` object from buffer
 - Use ultra-simple filename: `f1770464123456.mp4` (no hyphens, no special chars)
 - Pass `contentType` parameter
@@ -66,17 +72,20 @@ We changed the upload logic to:
 #### 1. Enable Blob Storage on Vercel
 
 **Is Blob Storage Connected?**
+
 1. Go to Vercel Dashboard → Your Project
 2. Click **Storage** tab (left sidebar)
 3. Look for **Blob** in the list
 
 **If NOT connected:**
+
 1. Click **Create Database**
 2. Select **Blob**
 3. Click **Create**
 4. It will auto-configure `BLOB_READ_WRITE_TOKEN`
 
 **If connected but uploads still fail:**
+
 - Check it's connected to the right project
 - Try disconnecting and reconnecting
 
@@ -91,12 +100,14 @@ We changed the upload logic to:
    - `RAZORPAY_KEY_SECRET`
 
 **If `BLOB_READ_WRITE_TOKEN` is missing:**
+
 - Blob Storage not properly connected
 - Go to Storage tab and reconnect
 
 #### 3. Redeploy After Blob Setup
 
 After connecting Blob Storage:
+
 1. Go to **Deployments**
 2. Find the latest deployment
 3. Click **•••** menu → **Redeploy**
@@ -123,6 +134,7 @@ After connecting Blob Storage:
 5. Upload a video and watch logs appear
 
 **Expected success logs:**
+
 ```
 Starting upload: test.mp4 (5.23MB)
 Generated filename: f1770464123456.mp4
@@ -131,6 +143,7 @@ Attempting Blob upload: f1770464123456.mp4, contentType: video/mp4, size: 548327
 ```
 
 **If error appears:**
+
 - Copy the full error message
 - Check the stack trace
 - Error might indicate:
@@ -143,18 +156,22 @@ Attempting Blob upload: f1770464123456.mp4, contentType: video/mp4, size: 548327
 ## Common Error Messages
 
 ### "Cloud storage not configured"
+
 **Cause:** `BLOB_READ_WRITE_TOKEN` environment variable missing
 **Fix:** Enable Blob Storage in Vercel dashboard (see above)
 
 ### "Blob upload failed: The string did not match the expected pattern"
+
 **Cause:** Filename format not accepted by Vercel Blob API
 **Fix:** Latest commit (edf92bc) should fix this - redeploy if needed
 
 ### "Dynamic server usage: Route couldn't be rendered statically"
+
 **Cause:** Normal behavior - these routes use `headers()` which makes them dynamic
 **Fix:** No fix needed - this is expected and not an error
 
 ### "Max serverless function size exceeded"
+
 **Cause:** Too many files in `/public/uploads/` being bundled
 **Fix:** Already fixed - `.vercelignore` excludes `public/uploads/`
 
@@ -177,6 +194,7 @@ Ensure your `settings` table has the correct structure:
 ```
 
 If `videos` column is missing:
+
 ```sql
 ALTER TABLE settings ADD COLUMN videos TEXT[] DEFAULT '{}';
 ```
@@ -228,11 +246,13 @@ vercel --prod
 ### Contact Support
 
 If all else fails, check:
+
 1. Vercel function logs (most detailed)
 2. Browser console (client-side errors)
 3. Network tab (API response codes)
 
 Provide these when asking for help:
+
 - Full error message from Vercel logs
 - Screenshot of Blob Storage dashboard
 - Screenshot of Environment Variables

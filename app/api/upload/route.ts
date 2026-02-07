@@ -56,16 +56,17 @@ export async function POST(request: NextRequest) {
       `Starting upload: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
     );
 
-    // Super simple filename: just timestamp.extension (no special chars)
+    // Super simple basename: only letters and numbers
     const timestamp = Date.now();
-    // Get extension, strip all non-alphanumeric
+    const baseName = `file${timestamp}`;
+    // Get extension for local file save
     const originalExt = file.name.split(".").pop()?.toLowerCase() || "";
     const extension = originalExt.replace(/[^a-z0-9]/g, "") || "bin";
-    
-    // Filename with NO hyphens, NO underscores - pure alphanumeric.extension
-    const filename = `f${timestamp}.${extension}`;
 
-    console.log(`Generated filename: ${filename}`);
+    const blobName = baseName; // no dots or special chars for Blob
+    const localFilename = `${baseName}.${extension}`;
+
+    console.log(`Generated blob name: ${blobName}`);
 
     // Convert file to buffer for saving
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -80,16 +81,16 @@ export async function POST(request: NextRequest) {
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         console.log(
-          `Attempting Blob upload: ${filename}, contentType: ${file.type}, size: ${buffer.length} bytes`,
+          `Attempting Blob upload: ${blobName}, contentType: ${file.type}, size: ${buffer.length} bytes`,
         );
 
         const { put } = await import("@vercel/blob");
 
         // Create a proper Blob object from buffer with correct content type
         const blob = new Blob([buffer], { type: file.type });
-        
+
         // Upload to Vercel Blob - use blob object instead of file
-        const result = await put(filename, blob, {
+        const result = await put(blobName, blob, {
           access: "public",
           contentType: file.type,
         });
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // 2. Local file system (development only)
-      const filepath = join(UPLOAD_DIR, filename);
+      const filepath = join(UPLOAD_DIR, localFilename);
       try {
         writeFileSync(filepath, buffer);
         // Verify file was written
@@ -146,13 +147,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Return Blob URL if available, otherwise local URL
-    const publicUrl = blobUrl || `/uploads/${filename}`;
+    const publicUrl = blobUrl || `/uploads/${localFilename}`;
 
     return NextResponse.json(
       {
         success: true,
         url: publicUrl,
-        filename: filename,
+        filename: blobUrl ? blobName : localFilename,
         size: buffer.length,
         contentType: file.type,
         savedTo: blobUrl ? "blob-storage" : "local-storage",
