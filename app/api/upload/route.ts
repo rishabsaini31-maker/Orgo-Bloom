@@ -56,19 +56,21 @@ export async function POST(request: NextRequest) {
       `Starting upload: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
     );
 
-    // Generate unique filename with only alphanumeric + hyphen (Vercel Blob safe)
+    // Generate simple filename - just timestamp and type
     const timestamp = Date.now();
-    const randomHex = Math.random().toString(16).substring(2, 10); // Hex only: 0-9, a-f
-    const extension = file.name.split(".").pop()?.toLowerCase()?.replace(/[^a-z0-9]/g, "") || "bin";
-    
-    // Create simple, safe filename (only lowercase letters, numbers, hyphens)
+    const randomHex = Math.random().toString(16).substring(2, 8); // Short hex: 6 chars
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+        ?.toLowerCase()
+        ?.replace(/[^a-z0-9]/g, "") || "bin";
+
+    // Super simple filename: just type + numbers + extension
     const safeType = type.toLowerCase().replace(/[^a-z]/g, "");
-    const filename = `${safeType}${timestamp}${randomHex}.${extension}`;
-    
-    // Blob path without leading slash, simple folder structure
-    const blobPath = `uploads/${filename}`;
-    
-    console.log(`Generated blob path: ${blobPath}`);
+    const filename = `${safeType}${timestamp}.${extension}`;
+
+    console.log(`Generated filename: ${filename}`);
 
     // Convert file to buffer for saving
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -82,17 +84,18 @@ export async function POST(request: NextRequest) {
     // 1. Try Vercel Blob Storage (production)
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
-        console.log(`Attempting Blob upload with path: ${blobPath}, size: ${buffer.length} bytes`);
-        
+        console.log(
+          `Attempting Blob upload: ${filename}, size: ${buffer.length} bytes, contentType: ${file.type}`,
+        );
+
         const { put } = await import("@vercel/blob");
-        
-        // Upload to Vercel Blob with addRandomSuffix to avoid conflicts
-        const blob = await put(blobPath, buffer, {
+
+        // Upload to Vercel Blob - use simple filename with auto suffix
+        const blob = await put(filename, buffer, {
           access: "public",
-          contentType: file.type,
-          addRandomSuffix: false, // We already have timestamp + random in filename
+          addRandomSuffix: true, // Let Vercel add suffix to prevent conflicts
         });
-        
+
         blobUrl = blob.url;
         console.log(`✓ File uploaded to Blob Storage: ${blob.url}`);
       } catch (blobError: any) {
