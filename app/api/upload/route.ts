@@ -56,13 +56,14 @@ export async function POST(request: NextRequest) {
       `Starting upload: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
     );
 
-    // Use absolute simplest filename format - just numbers.extension
+    // Super simple filename: just timestamp.extension (no special chars)
     const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 10000); // 4 digit random
-    const extension = file.name.split(".").pop()?.toLowerCase() || "bin";
-
-    // Most basic filename: timestamp-random.ext
-    const filename = `${timestamp}-${random}.${extension}`;
+    // Get extension, strip all non-alphanumeric
+    const originalExt = file.name.split(".").pop()?.toLowerCase() || "";
+    const extension = originalExt.replace(/[^a-z0-9]/g, "") || "bin";
+    
+    // Filename with NO hyphens, NO underscores - pure alphanumeric.extension
+    const filename = `f${timestamp}.${extension}`;
 
     console.log(`Generated filename: ${filename}`);
 
@@ -79,24 +80,29 @@ export async function POST(request: NextRequest) {
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         console.log(
-          `Attempting Blob upload: ${filename}, size: ${buffer.length} bytes`,
+          `Attempting Blob upload: ${filename}, contentType: ${file.type}, size: ${buffer.length} bytes`,
         );
 
         const { put } = await import("@vercel/blob");
 
-        // Upload to Vercel Blob - simplest possible call
-        const blob = await put(filename, file, {
+        // Create a proper Blob object from buffer with correct content type
+        const blob = new Blob([buffer], { type: file.type });
+        
+        // Upload to Vercel Blob - use blob object instead of file
+        const result = await put(filename, blob, {
           access: "public",
+          contentType: file.type,
         });
 
-        blobUrl = blob.url;
-        console.log(`✓ File uploaded to Blob Storage: ${blob.url}`);
+        blobUrl = result.url;
+        console.log(`✓ File uploaded to Blob Storage: ${result.url}`);
       } catch (blobError: any) {
         console.error("Blob storage upload failed:", blobError);
         console.error("Error details:", {
           message: blobError?.message,
           cause: blobError?.cause,
           stack: blobError?.stack,
+          name: blobError?.name,
         });
         throw new ApiError(
           `Blob upload failed: ${blobError?.message || "Unknown error"}. Please check Vercel logs for details.`,

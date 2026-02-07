@@ -432,7 +432,8 @@ export default function AdminSettingsPage() {
                 <p className="text-sm text-blue-800">
                   <strong>Note:</strong> The first video in this list will be
                   displayed on the home page. Use the up/down arrows to change
-                  the ranking order. You can add between {MIN_VIDEOS} to {MAX_VIDEOS} videos.
+                  the ranking order. You can add between {MIN_VIDEOS} to{" "}
+                  {MAX_VIDEOS} videos.
                 </p>
               </div>
             </div>
@@ -449,7 +450,11 @@ export default function AdminSettingsPage() {
             </button>
             <button
               type="submit"
-              disabled={saving || videos.length < MIN_VIDEOS || videos.length > MAX_VIDEOS}
+              disabled={
+                saving ||
+                videos.length < MIN_VIDEOS ||
+                videos.length > MAX_VIDEOS
+              }
               className="btn btn-primary"
             >
               {saving ? "Saving..." : "Save Settings"}
