@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { productApi } from "@/lib/api-client";
 import { generateSlug } from "@/lib/utils";
+import { useAuthStore } from "@/store/auth-store";
 import toast from "react-hot-toast";
 
 export default function NewProductPage() {
   const router = useRouter();
+  const { token } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [formData, setFormData] = useState({
@@ -39,6 +41,11 @@ export default function NewProductPage() {
     const files = e.target.files;
     if (!files) return;
 
+    if (!token) {
+      toast.error("Please login to upload images");
+      return;
+    }
+
     if (formData.images.length + files.length > 5) {
       toast.error("Maximum 5 images allowed");
       return;
@@ -55,11 +62,15 @@ export default function NewProductPage() {
 
         const response = await fetch("/api/upload", {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formDataToUpload,
         });
 
         if (!response.ok) {
-          throw new Error("Failed to upload image");
+          const error = await response.json();
+          throw new Error(error.error || "Failed to upload image");
         }
 
         const data = await response.json();
@@ -71,13 +82,16 @@ export default function NewProductPage() {
         images: [...formData.images, ...newImageUrls],
       });
       toast.success(`${files.length} image(s) uploaded successfully`);
-    } catch (error) {
-      toast.error("Failed to upload images");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload images");
     } finally {
       setUploadingImages(false);
       // Reset input
       if (e.target) {
         e.target.value = "";
+      }
+    }
+  };
       }
     }
   };

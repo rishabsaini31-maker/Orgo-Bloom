@@ -49,6 +49,11 @@ export default function AdminSettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!token) {
+      toast.error("Please login to upload videos");
+      return;
+    }
+
     setUploadingVideo(true);
     try {
       const formData = new FormData();
@@ -57,19 +62,23 @@ export default function AdminSettingsPage() {
 
       const response = await fetch("/api/upload", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Failed to upload video");
+        const error = await response.json();
+        throw new Error(error.error || "Failed to upload video");
       }
 
       const data = await response.json();
       setVideoUrl(data.url);
       setUseFileUpload(true);
       toast.success("Video uploaded successfully");
-    } catch (error) {
-      toast.error("Failed to upload video");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload video");
     } finally {
       setUploadingVideo(false);
       if (e.target) {

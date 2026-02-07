@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuthStore } from "@/store/auth-store";
 import toast from "react-hot-toast";
 
 export default function AdminVideosPage() {
+  const { token } = useAuthStore();
   const [videos, setVideos] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -29,6 +31,11 @@ export default function AdminVideosPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
+    if (!token) {
+      toast.error("Please login to upload videos");
+      return;
+    }
 
     const videoFiles = Array.from(files).filter(
       (file) =>
@@ -59,6 +66,9 @@ export default function AdminVideosPage() {
 
         const uploadResponse = await fetch("/api/upload", {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formData,
         });
 
@@ -66,7 +76,8 @@ export default function AdminVideosPage() {
           const data = await uploadResponse.json();
           uploadedUrls.push(data.url);
         } else {
-          throw new Error("Upload failed");
+          const error = await uploadResponse.json();
+          throw new Error(error.error || "Upload failed");
         }
       }
 
@@ -76,7 +87,10 @@ export default function AdminVideosPage() {
       // Save to database
       const saveResponse = await fetch("/api/videos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ videos: newVideos }),
       });
 
@@ -84,8 +98,8 @@ export default function AdminVideosPage() {
 
       toast.success(`${videoFiles.length} video(s) uploaded successfully!`);
       e.target.value = "";
-    } catch (error) {
-      toast.error("Failed to upload videos");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload videos");
       console.error(error);
     } finally {
       setIsUploading(false);
@@ -105,14 +119,17 @@ export default function AdminVideosPage() {
     try {
       const response = await fetch("/api/videos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ videos: newVideos }),
       });
 
       if (!response.ok) throw new Error("Failed to update videos");
       toast.success("Video removed successfully");
-    } catch (error) {
-      toast.error("Failed to remove video");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to remove video");
       console.error(error);
     }
   };
@@ -125,14 +142,17 @@ export default function AdminVideosPage() {
     try {
       const response = await fetch("/api/videos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ videos: [] }),
       });
 
       if (!response.ok) throw new Error("Failed to clear videos");
       toast.success("All videos removed");
-    } catch (error) {
-      toast.error("Failed to clear videos");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to clear videos");
       console.error(error);
     }
   };
