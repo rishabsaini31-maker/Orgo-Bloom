@@ -61,7 +61,7 @@ export default function VideoPlayer({ videos }: VideoPlayerProps) {
           </svg>
           <h2 className="text-2xl font-bold mb-2">No Videos Configured</h2>
           <p className="text-lg opacity-90">
-            Upload 3-8 videos in the admin panel to display here
+            Upload 1-8 videos in the admin panel to display here
           </p>
         </div>
       </div>

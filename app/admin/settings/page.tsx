@@ -11,6 +11,9 @@ interface Video {
   rank: number;
 }
 
+const MIN_VIDEOS = 1;
+const MAX_VIDEOS = 8;
+
 export default function AdminSettingsPage() {
   const { user, token } = useAuthStore();
   const router = useRouter();
@@ -73,6 +76,11 @@ export default function AdminSettingsPage() {
       return;
     }
 
+    if (videos.length >= MAX_VIDEOS) {
+      toast.error(`Maximum ${MAX_VIDEOS} videos allowed`);
+      return;
+    }
+
     setUploadingVideo(true);
     try {
       const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
@@ -120,6 +128,11 @@ export default function AdminSettingsPage() {
       return;
     }
 
+    if (videos.length >= MAX_VIDEOS) {
+      toast.error(`Maximum ${MAX_VIDEOS} videos allowed`);
+      return;
+    }
+
     if (
       !newYoutubeUrl.includes("youtube.com/embed/") &&
       !newYoutubeUrl.includes("youtu.be")
@@ -139,6 +152,10 @@ export default function AdminSettingsPage() {
   };
 
   const handleDeleteVideo = (index: number) => {
+    if (videos.length <= MIN_VIDEOS) {
+      toast.error(`At least ${MIN_VIDEOS} video is required`);
+      return;
+    }
     const newVideos = videos.filter((_, i) => i !== index);
     // Recalculate ranks
     const rerankedVideos = newVideos.map((v, i) => ({ ...v, rank: i + 1 }));
@@ -172,8 +189,12 @@ export default function AdminSettingsPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (videos.length === 0) {
-      toast.error("Please add at least one video");
+    if (videos.length < MIN_VIDEOS) {
+      toast.error(`Please add at least ${MIN_VIDEOS} video`);
+      return;
+    }
+    if (videos.length > MAX_VIDEOS) {
+      toast.error(`Maximum ${MAX_VIDEOS} videos allowed`);
       return;
     }
 
@@ -212,6 +233,14 @@ export default function AdminSettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Site Settings</h1>
         <p className="text-gray-600 mt-1">Manage and rank home page videos</p>
+        <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded-lg">
+          <span className="text-sm font-medium text-blue-900">
+            Videos: {videos.length} / {MAX_VIDEOS}
+          </span>
+          {videos.length >= MAX_VIDEOS && (
+            <span className="text-xs text-blue-700">(Max reached)</span>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -238,7 +267,8 @@ export default function AdminSettingsPage() {
                 <button
                   type="button"
                   onClick={handleAddYoutubeVideo}
-                  className="btn btn-primary px-4"
+                  disabled={videos.length >= MAX_VIDEOS}
+                  className="btn btn-primary px-4 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Add YouTube
                 </button>
@@ -261,12 +291,12 @@ export default function AdminSettingsPage() {
                 id="video-upload"
                 accept="video/mp4,video/webm,video/quicktime"
                 onChange={handleVideoUpload}
-                disabled={uploadingVideo}
+                disabled={uploadingVideo || videos.length >= MAX_VIDEOS}
                 className="hidden"
               />
               <label
                 htmlFor="video-upload"
-                className={`cursor-pointer block ${uploadingVideo ? "opacity-50" : ""}`}
+                className={`block ${uploadingVideo || videos.length >= MAX_VIDEOS ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
               >
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400 mb-2"
@@ -402,7 +432,7 @@ export default function AdminSettingsPage() {
                 <p className="text-sm text-blue-800">
                   <strong>Note:</strong> The first video in this list will be
                   displayed on the home page. Use the up/down arrows to change
-                  the ranking order.
+                  the ranking order. You can add between {MIN_VIDEOS} to {MAX_VIDEOS} videos.
                 </p>
               </div>
             </div>
@@ -419,7 +449,7 @@ export default function AdminSettingsPage() {
             </button>
             <button
               type="submit"
-              disabled={saving || videos.length === 0}
+              disabled={saving || videos.length < MIN_VIDEOS || videos.length > MAX_VIDEOS}
               className="btn btn-primary"
             >
               {saving ? "Saving..." : "Save Settings"}

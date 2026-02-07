@@ -59,11 +59,7 @@ export async function POST(request: NextRequest) {
     // Use absolute simplest filename format - just numbers.extension
     const timestamp = Date.now();
     const random = Math.floor(Math.random() * 10000); // 4 digit random
-    const extension =
-      file.name
-        .split(".")
-        .pop()
-        ?.toLowerCase() || "bin";
+    const extension = file.name.split(".").pop()?.toLowerCase() || "bin";
 
     // Most basic filename: timestamp-random.ext
     const filename = `${timestamp}-${random}.${extension}`;
