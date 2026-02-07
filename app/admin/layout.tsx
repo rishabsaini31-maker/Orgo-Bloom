@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,22 +13,42 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, isHydrated, logout } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Wait for store to hydrate from localStorage
+    if (!mounted || !isHydrated) {
+      return;
+    }
+
     // Allow access to /admin/login without authentication
     if (pathname === "/admin/login") {
       return;
     }
 
+    // Only redirect if user is not authenticated AND store has been hydrated
     if (!isAuthenticated || user?.role !== "ADMIN") {
       router.push("/admin/login");
     }
-  }, [isAuthenticated, user, router, pathname]);
+  }, [isAuthenticated, user, router, pathname, mounted, isHydrated]);
 
   // Allow /admin/login to render without authentication check
   if (pathname === "/admin/login") {
     return children;
+  }
+
+  // Wait for store hydration before checking auth
+  if (!mounted || !isHydrated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    );
   }
 
   if (!isAuthenticated || user?.role !== "ADMIN") {
