@@ -289,7 +289,7 @@ export default function NewProductPage() {
                 type="file"
                 id="images-upload"
                 multiple
-                accept="image/jpeg,image/png,image/webp"
+                accept="image/png,image/jpeg"
                 onChange={handleImageUpload}
                 disabled={uploadingImages || formData.images.length >= 5}
                 className="hidden"
@@ -327,7 +327,7 @@ export default function NewProductPage() {
                     : "Click or drag images here"}
                 </p>
                 <p className="text-xs text-gray-500">
-                  PNG, JPG, or WebP up to 10MB each
+                  PNG or JPG up to 10MB each
                 </p>
               </label>
             </div>

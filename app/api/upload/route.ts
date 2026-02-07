@@ -6,7 +6,7 @@ import { ApiError, handleApiError } from "@/lib/api-utils";
 
 const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 
 // Ensure upload directory exists
@@ -75,7 +75,10 @@ export async function POST(request: NextRequest) {
         });
         blobUrl = blob.url;
       } catch (blobError) {
-        console.warn("Blob storage upload failed, using local storage", blobError);
+        console.warn(
+          "Blob storage upload failed, using local storage",
+          blobError,
+        );
       }
     }
 
