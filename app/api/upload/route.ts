@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { existsSync, mkdirSync, writeFileSync } from "fs";
-import { join } from "path";
 import { authenticateRequest, isAdmin } from "@/lib/auth";
 import { ApiError, handleApiError } from "@/lib/api-utils";
+import { put } from "@vercel/blob";
 
-const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
-
-// Ensure upload directory exists
-if (!existsSync(UPLOAD_DIR)) {
-  mkdirSync(UPLOAD_DIR, { recursive: true });
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,19 +50,18 @@ export async function POST(request: NextRequest) {
     const random = Math.random().toString(36).substring(7);
     const extension = file.name.split(".").pop();
     const filename = `${type}-${timestamp}-${random}.${extension}`;
-    const filepath = join(UPLOAD_DIR, filename);
 
-    // Save file
+    // Upload to Vercel Blob Storage
     const buffer = Buffer.from(await file.arrayBuffer());
-    writeFileSync(filepath, buffer);
-
-    // Return public URL path
-    const publicUrl = `/uploads/${filename}`;
+    const blob = await put(filename, buffer, {
+      access: "public",
+      contentType: file.type,
+    });
 
     return NextResponse.json(
       {
         success: true,
-        url: publicUrl,
+        url: blob.url,
         filename: filename,
       },
       { status: 201 },
