@@ -42,16 +42,18 @@ export default function AdminSettingsPage() {
         const data = await response.json();
         // Parse videos from the response
         if (data.videos && Array.isArray(data.videos)) {
-          const parsedVideos: Video[] = data.videos.map((video: any, index: number) => {
-            if (typeof video === "string") {
-              return {
-                url: video,
-                type: video.startsWith("/uploads/") ? "upload" : "youtube",
-                rank: index + 1,
-              };
-            }
-            return video;
-          });
+          const parsedVideos: Video[] = data.videos.map(
+            (video: any, index: number) => {
+              if (typeof video === "string") {
+                return {
+                  url: video,
+                  type: video.startsWith("/uploads/") ? "upload" : "youtube",
+                  rank: index + 1,
+                };
+              }
+              return video;
+            },
+          );
           setVideos(parsedVideos);
         }
       }
@@ -118,7 +120,10 @@ export default function AdminSettingsPage() {
       return;
     }
 
-    if (!newYoutubeUrl.includes("youtube.com/embed/") && !newYoutubeUrl.includes("youtu.be")) {
+    if (
+      !newYoutubeUrl.includes("youtube.com/embed/") &&
+      !newYoutubeUrl.includes("youtu.be")
+    ) {
       toast.error("Invalid YouTube URL format");
       return;
     }
@@ -144,7 +149,10 @@ export default function AdminSettingsPage() {
   const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newVideos = [...videos];
-    [newVideos[index - 1], newVideos[index]] = [newVideos[index], newVideos[index - 1]];
+    [newVideos[index - 1], newVideos[index]] = [
+      newVideos[index],
+      newVideos[index - 1],
+    ];
     // Recalculate ranks
     const rerankedVideos = newVideos.map((v, i) => ({ ...v, rank: i + 1 }));
     setVideos(rerankedVideos);
@@ -153,7 +161,10 @@ export default function AdminSettingsPage() {
   const handleMoveDown = (index: number) => {
     if (index === videos.length - 1) return;
     const newVideos = [...videos];
-    [newVideos[index], newVideos[index + 1]] = [newVideos[index + 1], newVideos[index]];
+    [newVideos[index], newVideos[index + 1]] = [
+      newVideos[index + 1],
+      newVideos[index],
+    ];
     // Recalculate ranks
     const rerankedVideos = newVideos.map((v, i) => ({ ...v, rank: i + 1 }));
     setVideos(rerankedVideos);
@@ -175,8 +186,8 @@ export default function AdminSettingsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          videos: videos.map(v => v.url)
+        body: JSON.stringify({
+          videos: videos.map((v) => v.url),
         }),
       });
 
@@ -200,9 +211,7 @@ export default function AdminSettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Site Settings</h1>
-        <p className="text-gray-600 mt-1">
-          Manage and rank home page videos
-        </p>
+        <p className="text-gray-600 mt-1">Manage and rank home page videos</p>
       </div>
 
       {loading ? (
@@ -235,7 +244,8 @@ export default function AdminSettingsPage() {
                 </button>
               </div>
               <p className="text-sm text-gray-500">
-                Enter YouTube embed URL (e.g., https://www.youtube.com/embed/VIDEO_ID)
+                Enter YouTube embed URL (e.g.,
+                https://www.youtube.com/embed/VIDEO_ID)
               </p>
             </div>
           </div>
@@ -278,11 +288,11 @@ export default function AdminSettingsPage() {
                   />
                 </svg>
                 <p className="text-sm font-medium text-gray-700">
-                  {uploadingVideo ? "Uploading..." : "Click to upload video (Up to 150MB)"}
+                  {uploadingVideo
+                    ? "Uploading..."
+                    : "Click to upload video (Up to 150MB)"}
                 </p>
-                <p className="text-xs text-gray-500">
-                  MP4, WebM, or MOV
-                </p>
+                <p className="text-xs text-gray-500">MP4, WebM, or MOV</p>
               </label>
             </div>
           </div>
@@ -390,7 +400,9 @@ export default function AdminSettingsPage() {
               </div>
               <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> The first video in this list will be displayed on the home page. Use the up/down arrows to change the ranking order.
+                  <strong>Note:</strong> The first video in this list will be
+                  displayed on the home page. Use the up/down arrows to change
+                  the ranking order.
                 </p>
               </div>
             </div>
@@ -405,7 +417,11 @@ export default function AdminSettingsPage() {
             >
               Cancel
             </button>
-            <button type="submit" disabled={saving || videos.length === 0} className="btn btn-primary">
+            <button
+              type="submit"
+              disabled={saving || videos.length === 0}
+              className="btn btn-primary"
+            >
               {saving ? "Saving..." : "Save Settings"}
             </button>
           </div>
