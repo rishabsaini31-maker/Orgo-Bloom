@@ -154,7 +154,7 @@ export default function ProductDetailPage() {
                   {/* Main Large Image - Always First Image */}
                   <button
                     onClick={() => setSelectedImageIndex(0)}
-                    className={`relative w-full h-80 lg:h-96 bg-gray-200 rounded-lg overflow-hidden group transition-all ${
+                    className={`relative w-full h-80 lg:h-96 bg-gray-100 rounded-lg overflow-hidden group transition-all flex items-center justify-center ${
                       selectedImageIndex === 0
                         ? "ring-4 ring-primary-600"
                         : "hover:ring-2 hover:ring-gray-300"
@@ -163,7 +163,7 @@ export default function ProductDetailPage() {
                     <img
                       src={allImages[0]}
                       alt={product.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         console.error(`Failed to load image: ${allImages[0]}`);
                         e.currentTarget.src = "/placeholder-product.jpg";
@@ -196,7 +196,7 @@ export default function ProductDetailPage() {
                         <button
                           key={index + 1}
                           onClick={() => setSelectedImageIndex(index + 1)}
-                          className={`relative h-40 lg:h-52 bg-gray-200 rounded-lg overflow-hidden group transition-all ${
+                          className={`relative h-40 lg:h-52 bg-gray-100 rounded-lg overflow-hidden group transition-all flex items-center justify-center ${
                             selectedImageIndex === index + 1
                               ? "ring-4 ring-primary-600"
                               : "hover:ring-2 hover:ring-gray-300"
@@ -205,7 +205,7 @@ export default function ProductDetailPage() {
                           <img
                             src={image}
                             alt={`${product.name} ${index + 2}`}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                             onError={(e) => {
                               console.error(`Failed to load image: ${image}`);
                             }}
