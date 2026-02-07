@@ -92,9 +92,6 @@ export default function NewProductPage() {
       }
     }
   };
-      }
-    }
-  };
 
   const removeImage = (index: number) => {
     setFormData({
