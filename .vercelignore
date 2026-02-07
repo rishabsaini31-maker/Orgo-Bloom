@@ -1,0 +1,3 @@
+# Exclude uploaded files from deployment
+# These should be stored in Vercel Blob Storage in production
+public/uploads/
