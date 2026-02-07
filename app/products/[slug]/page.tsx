@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ProductCard from "@/components/ProductCard";
 import { productApi } from "@/lib/api-client";
 import { useCartStore } from "@/store/cart-store";
 import { formatPrice } from "@/lib/utils";
@@ -14,6 +15,7 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const slug = params.slug as string;
   const [product, setProduct] = useState<any>(null);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -35,6 +37,13 @@ export default function ProductDetailPage() {
     try {
       const response = await productApi.getBySlug(slug);
       setProduct(response.data.product);
+      
+      // Fetch related products (all active products except current one)
+      const allProductsResponse = await productApi.getAll({ limit: 100 });
+      const related = allProductsResponse.data.products
+        .filter((p: any) => p.id !== response.data.product.id)
+        .slice(0, 8); // Show only 8 related products
+      setRelatedProducts(related);
     } catch (error: any) {
       console.error("Error fetching product:", error);
       if (error.response?.status === 404) {
@@ -326,6 +335,23 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Related Products Section */}
+          {relatedProducts.length > 0 && (
+            <div className="mt-20 pt-16 border-t border-gray-200">
+              <div className="mb-12">
+                <h2 className="text-3xl font-bold mb-2">Related Products</h2>
+                <p className="text-gray-600">
+                  You might also be interested in these products
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {relatedProducts.map((relatedProduct) => (
+                  <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
       <Footer />
