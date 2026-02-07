@@ -52,53 +52,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use Vercel Blob in production, local storage in development
+    // Generate unique filename
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(7);
+    const extension = file.name.split(".").pop();
+    const filename = `${type}-${timestamp}-${random}.${extension}`;
+
+    // Convert file to buffer for saving
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    let blobUrl: string | null = null;
+
+    // HYBRID: Save to BOTH Blob Storage (if available) AND Local Storage
+    // 1. Save to Vercel Blob Storage (production)
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      // Production: Use Vercel Blob Storage
-      const { put } = await import("@vercel/blob");
-
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(7);
-      const extension = file.name.split(".").pop();
-      const filename = `${type}-${timestamp}-${random}.${extension}`;
-
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const blob = await put(filename, buffer, {
-        access: "public",
-        contentType: file.type,
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-      });
-
-      return NextResponse.json(
-        {
-          success: true,
-          url: blob.url,
-          filename: filename,
-        },
-        { status: 201 },
-      );
-    } else {
-      // Development: Use local file system
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(7);
-      const extension = file.name.split(".").pop();
-      const filename = `${type}-${timestamp}-${random}.${extension}`;
-      const filepath = join(UPLOAD_DIR, filename);
-
-      const buffer = Buffer.from(await file.arrayBuffer());
-      writeFileSync(filepath, buffer);
-
-      const publicUrl = `/uploads/${filename}`;
-
-      return NextResponse.json(
-        {
-          success: true,
-          url: publicUrl,
-          filename: filename,
-        },
-        { status: 201 },
-      );
+      try {
+        const { put } = await import("@vercel/blob");
+        const blob = await put(filename, buffer, {
+          access: "public",
+          contentType: file.type,
+          token: process.env.BLOB_READ_WRITE_TOKEN,
+        });
+        blobUrl = blob.url;
+      } catch (blobError) {
+        console.warn("Blob storage upload failed, using local storage", blobError);
+      }
     }
+
+    // 2. Always save to local file system as backup/fallback
+    const filepath = join(UPLOAD_DIR, filename);
+    try {
+      writeFileSync(filepath, buffer);
+    } catch (localError) {
+      console.warn("Local file save failed", localError);
+    }
+
+    // Return Blob URL if available, otherwise local URL
+    const publicUrl = blobUrl || `/uploads/${filename}`;
+
+    return NextResponse.json(
+      {
+        success: true,
+        url: publicUrl,
+        filename: filename,
+        savedTo: blobUrl ? "blob-and-local" : "local",
+      },
+      { status: 201 },
+    );
   } catch (error) {
     return handleApiError(error);
   }
