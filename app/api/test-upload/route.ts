@@ -8,12 +8,12 @@ export async function GET(request: NextRequest) {
   try {
     const dirExists = existsSync(UPLOAD_DIR);
     let files: any[] = [];
-    
+
     if (dirExists) {
       const fileList = readdirSync(UPLOAD_DIR);
       files = fileList
-        .filter(f => f !== '.gitkeep')
-        .map(f => {
+        .filter((f) => f !== ".gitkeep")
+        .map((f) => {
           const filepath = join(UPLOAD_DIR, f);
           const stats = statSync(filepath);
           return {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error?.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

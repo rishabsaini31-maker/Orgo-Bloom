@@ -5,7 +5,7 @@ import { authenticateRequest, isAdmin } from "@/lib/auth";
 import { ApiError, handleApiError } from "@/lib/api-utils";
 
 const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB for large images/videos
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 
@@ -47,10 +47,12 @@ export async function POST(request: NextRequest) {
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       throw new ApiError(
-        `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+        `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB, received: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
         400,
       );
     }
+    
+    console.log(`Starting upload: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
 
     // Generate unique filename
     const timestamp = Date.now();

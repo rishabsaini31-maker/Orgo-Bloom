@@ -56,8 +56,13 @@ export default function NewProductPage() {
 
     try {
       for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+        console.log(`Uploading: ${file.name} (${fileSizeMB}MB)`);
+        toast.loading(`Uploading ${file.name} (${fileSizeMB}MB)...`);
+
         const formDataToUpload = new FormData();
-        formDataToUpload.append("file", files[i]);
+        formDataToUpload.append("file", file);
         formDataToUpload.append("type", "image");
 
         const response = await fetch("/api/upload", {
@@ -66,15 +71,16 @@ export default function NewProductPage() {
             Authorization: `Bearer ${token}`,
           },
           body: formDataToUpload,
+          signal: AbortSignal.timeout(300000), // 5 minute timeout for large files
         });
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || "Failed to upload image");
+          throw new Error(error.error || `Failed to upload ${file.name}`);
         }
 
         const data = await response.json();
-        console.log("Upload response:", data);
+        console.log(`✓ Upload complete: ${file.name}`, data);
         newImageUrls.push(data.url);
       }
 
@@ -329,7 +335,7 @@ export default function NewProductPage() {
                     : "Click or drag images here"}
                 </p>
                 <p className="text-xs text-gray-500">
-                  PNG or JPG up to 10MB each
+                  PNG or JPG up to 50MB each (large files may take time to upload)
                 </p>
               </label>
             </div>
