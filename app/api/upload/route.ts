@@ -51,8 +51,10 @@ export async function POST(request: NextRequest) {
         400,
       );
     }
-    
-    console.log(`Starting upload: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+    console.log(
+      `Starting upload: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
+    );
 
     // Generate unique filename
     const timestamp = Date.now();
@@ -64,9 +66,12 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
 
     let blobUrl: string | null = null;
+    let localSaved = false;
 
-    // HYBRID: Save to BOTH Blob Storage (if available) AND Local Storage
-    // 1. Save to Vercel Blob Storage (production)
+    // Check if we're in production (Vercel)
+    const isProduction = process.env.VERCEL === "1";
+
+    // 1. Try Vercel Blob Storage (production)
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         const { put } = await import("@vercel/blob");
@@ -76,37 +81,46 @@ export async function POST(request: NextRequest) {
           token: process.env.BLOB_READ_WRITE_TOKEN,
         });
         blobUrl = blob.url;
+        console.log(`✓ File uploaded to Blob Storage: ${blob.url}`);
       } catch (blobError) {
-        console.warn(
-          "Blob storage upload failed, using local storage",
-          blobError,
+        console.error("Blob storage upload failed:", blobError);
+        throw new ApiError(
+          "Failed to upload to cloud storage. Please try again.",
+          500,
         );
       }
-    }
-
-    // 2. Always save to local file system as backup/fallback
-    const filepath = join(UPLOAD_DIR, filename);
-    try {
-      writeFileSync(filepath, buffer);
-      // Verify file was written
-      const fileExists = existsSync(filepath);
-      const fileStats = fileExists ? statSync(filepath) : null;
-      
-      if (!fileExists || !fileStats || fileStats.size === 0) {
-        throw new Error(
-          `File verification failed: exists=${fileExists}, size=${fileStats?.size || 0}`,
-        );
-      }
-      console.log(`✓ File saved: ${filepath} (${fileStats.size} bytes)`);
-    } catch (localError) {
-      console.error(
-        `✗ Local file save failed:`,
-        localError instanceof Error ? localError.message : localError,
-      );
+    } else if (isProduction) {
+      // In production without Blob token - cannot proceed
       throw new ApiError(
-        `Failed to save file: ${localError instanceof Error ? localError.message : "Unknown error"}`,
-        500,
+        "Cloud storage not configured. Please enable Vercel Blob Storage in your project settings.",
+        503,
       );
+    } else {
+      // 2. Local file system (development only)
+      const filepath = join(UPLOAD_DIR, filename);
+      try {
+        writeFileSync(filepath, buffer);
+        // Verify file was written
+        const fileExists = existsSync(filepath);
+        const fileStats = fileExists ? statSync(filepath) : null;
+
+        if (!fileExists || !fileStats || fileStats.size === 0) {
+          throw new Error(
+            `File verification failed: exists=${fileExists}, size=${fileStats?.size || 0}`,
+          );
+        }
+        localSaved = true;
+        console.log(`✓ File saved locally: ${filepath} (${fileStats.size} bytes)`);
+      } catch (localError) {
+        console.error(
+          `✗ Local file save failed:`,
+          localError instanceof Error ? localError.message : localError,
+        );
+        throw new ApiError(
+          `Failed to save file: ${localError instanceof Error ? localError.message : "Unknown error"}`,
+          500,
+        );
+      }
     }
 
     // Return Blob URL if available, otherwise local URL
@@ -119,7 +133,8 @@ export async function POST(request: NextRequest) {
         filename: filename,
         size: buffer.length,
         contentType: file.type,
-        savedTo: blobUrl ? "blob-and-local" : "local",
+        savedTo: blobUrl ? "blob-storage" : "local-storage",
+        environment: isProduction ? "production" : "development",
       },
       { status: 201 },
     );
