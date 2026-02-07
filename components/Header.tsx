@@ -50,7 +50,10 @@ export default function Header() {
     <header className="bg-white shadow-elegant sticky top-0 z-45 border-b border-gray-100">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-4 h-24">
-          <Link href="/" className="flex-shrink-0 hover:opacity-80 transition-opacity">
+          <Link
+            href="/"
+            className="flex-shrink-0 hover:opacity-80 transition-opacity"
+          >
             <Image
               src="/logo.jpg"
               alt="Orgobloom Logo"

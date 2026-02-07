@@ -72,11 +72,10 @@ export default async function HomePage() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
               <div>
-                <h2 className="section-title mb-3">
-                  Our Products For Sale
-                </h2>
+                <h2 className="section-title mb-3">Our Products For Sale</h2>
                 <p className="section-subtitle">
-                  Premium organic fertilizers crafted to transform your garden naturally and sustainably
+                  Premium organic fertilizers crafted to transform your garden
+                  naturally and sustainably
                 </p>
               </div>
               <Link
@@ -100,6 +99,56 @@ export default async function HomePage() {
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        </section>
+
+        {/* Organic Benefits Section */}
+        <section className="py-20 bg-gradient-to-b from-primary-50 to-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <div className="inline-block mb-4">
+                <span className="badge-organic">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.633l4-12a1 1 0 011.265-.632zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                  Why Choose Organic?
+                </span>
+              </div>
+              <h2 className="section-title mb-4">The Power of Organic Fertilizers</h2>
+              <p className="section-subtitle text-center">Natural ingredients nurturing healthier plants and richer soil</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <div className="benefit-card">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-gray-900">Nutrient Rich</h3>
+                <p className="text-gray-700">100% organic ingredients packed with essential nutrients for optimal plant growth</p>
+              </div>
+
+              <div className="benefit-card">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-gray-900">Soil Enhancement</h3>
+                <p className="text-gray-700">Improves soil structure and microbial activity for long-term fertility</p>
+              </div>
+
+              <div className="benefit-card">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.343a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM15.657 14.657a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM11 17a1 1 0 102 0v-1a1 1 0 10-2 0v1zM5.343 15.657a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zM5.343 4.343a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 011.414-1.414l.707.707zM10 1a9 9 0 100 18 9 9 0 000-18z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-gray-900">Environment Safe</h3>
+                <p className="text-gray-700">No harmful chemicals—safe for your family, pets, and the environment</p>
+              </div>
             </div>
           </div>
         </section>
@@ -305,8 +354,117 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Certifications & Trust Section */}
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="section-title mb-4">Trusted & Certified</h2>
+              <p className="section-subtitle text-center">Meeting international standards for quality and sustainability</p>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-8">
+              <div className="trust-badge">
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16v0zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-gray-900">100% Organic</h3>
+                <p className="text-sm text-gray-600">No chemicals or additives</p>
+              </div>
+
+              <div className="trust-badge">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-gray-900">Field Tested</h3>
+                <p className="text-sm text-gray-600">Proven by thousands</p>
+              </div>
+
+              <div className="trust-badge">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-2.77 3.058 3.058 0 00-3.064 3.067 3.065 3.065 0 001.318 2.7A3.066 3.066 0 006.267 3.455zm9.5 2.945a3.066 3.066 0 01-3.064-3.067 3.063 3.063 0 011.745-2.77 3.066 3.066 0 01-.001 5.837zm7.38 5.51a.75.75 0 00-.688-.688h-.701a.75.75 0 00-.688.688v5.25c0 .397.288.75.688.75h.701a.75.75 0 00.688-.75v-5.25zm-2.378-3.5a.75.75 0 00-.688-.688h-.701a.75.75 0 00-.688.688v8.75c0 .397.288.75.688.75h.701a.75.75 0 00.688-.75v-8.75zM4.5 6.5a.75.75 0 00-.688-.688h-.701a.75.75 0 00-.688.688v12c0 .397.288.75.688.75h.701a.75.75 0 00.688-.75v-12z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-gray-900">Lab Verified</h3>
+                <p className="text-sm text-gray-600">Quality assured</p>
+              </div>
+
+              <div className="trust-badge">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm14 1v-1H4v1h12zm0 3H4v4h12V9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-gray-900">Eco-Friendly</h3>
+                <p className="text-sm text-gray-600">Sustainable practices</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="section-title mb-4">How Organic Fertilizer Works</h2>
+              <p className="section-subtitle text-center">A natural cycle of growth and renewal</p>
+            </div>
+
+            <div className="max-w-5xl mx-auto">
+              <div className="grid md:grid-cols-4 gap-6">
+                {/* Step 1 */}
+                <div className="text-center">
+                  <div className="relative mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center mx-auto text-white font-bold text-2xl shadow-lg">
+                      1
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-gray-900 mb-3">Apply</h3>
+                  <p className="text-sm text-gray-600">Mix our organic fertilizer into your soil or apply as a top dressing</p>
+                </div>
+
+                {/* Arrow */}
+                <div className="hidden md:flex items-center justify-center">
+                  <svg className="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+
+                {/* Step 2 */}
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto text-white font-bold text-2xl shadow-lg">
+                    2
+                  </div>
+                  <h3 className="font-bold text-gray-900 mb-3 mt-6">Nourish</h3>
+                  <p className="text-sm text-gray-600">Nutrients release slowly, feeding your plants over months</p>
+                </div>
+
+                {/* Arrow */}
+                <div className="hidden md:flex items-center justify-center">
+                  <svg className="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+
+                {/* Step 3 */}
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-full flex items-center justify-center mx-auto text-white font-bold text-2xl shadow-lg">
+                    3
+                  </div>
+                  <h3 className="font-bold text-gray-900 mb-3 mt-6">Thrive</h3>
+                  <p className="text-sm text-gray-600">Watch your plants grow stronger and healthier naturally</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Testimonials Section */}
-        <section className="py-16">
+        <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               <h2 className="text-4xl font-bold mb-4 text-gray-900 text-center">
@@ -319,7 +477,7 @@ export default async function HomePage() {
 
               <div className="grid md:grid-cols-3 gap-8">
                 {/* Testimonial 1 */}
-                <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                <div className="testimonial-card">
                   <div className="flex items-center mb-4">
                     <div className="flex text-yellow-400">
                       {[...Array(5)].map((_, i) => (
@@ -345,7 +503,7 @@ export default async function HomePage() {
                 </div>
 
                 {/* Testimonial 2 */}
-                <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                <div className="testimonial-card">
                   <div className="flex items-center mb-4">
                     <div className="flex text-yellow-400">
                       {[...Array(5)].map((_, i) => (
@@ -371,7 +529,7 @@ export default async function HomePage() {
                 </div>
 
                 {/* Testimonial 3 */}
-                <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                <div className="testimonial-card">
                   <div className="flex items-center mb-4">
                     <div className="flex text-yellow-400">
                       {[...Array(5)].map((_, i) => (
@@ -510,20 +668,45 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Newsletter Section */}
+        <section className="py-20 bg-gradient-to-r from-primary-700 to-primary-900 text-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl mx-auto text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Grow with Us</h2>
+              <p className="text-lg text-primary-100 mb-8">Get exclusive gardening tips, product updates, and special offers delivered to your inbox</p>
+              <form className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="input text-gray-900 placeholder-gray-500 flex-1"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="cta-button bg-white text-primary-600 font-bold hover:bg-gray-100"
+                >
+                  Subscribe
+                </button>
+              </form>
+              <p className="text-sm text-primary-200 mt-4">✓ No spam. Just gardening wisdom and special deals.</p>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
-        <section className="bg-primary-600 text-white py-16">
+        <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-16">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Ready to Transform Your Garden?
             </h2>
             <p className="text-xl mb-8 text-primary-100">
-              Start using Orgobloom organic fertilizers today
+              Join thousands of gardeners using Orgobloom organic fertilizers
             </p>
             <Link
               href="/products"
-              className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition inline-block"
+              className="cta-button bg-white text-primary-600 hover:bg-primary-50 inline-block"
             >
-              Shop Now
+              Explore Products Now →
             </Link>
           </div>
         </section>

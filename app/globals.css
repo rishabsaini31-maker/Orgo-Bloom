@@ -14,7 +14,9 @@ html {
 
 body {
   @apply text-gray-900 bg-white;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, sans-serif;
 }
 
 /* Scroll Animation Keyframes */
@@ -74,11 +76,51 @@ body {
 }
 
 @keyframes gradientFlow {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
     background-position: 100% 50%;
+  }
+}
+
+@keyframes leafFloat {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes growthPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes sproutGrow {
+  0% {
+    opacity: 0;
+    clip-path: polygon(50% 100%, 0% 100%, 0% 100%, 50% 100%, 100% 100%, 100% 100%);
+  }
+  50% {
+    opacity: 0.5;
+    clip-path: polygon(50% 70%, 20% 100%, 0% 80%, 50% 50%, 100% 80%, 80% 100%);
+  }
+  100% {
+    opacity: 1;
+    clip-path: polygon(50% 0%, 20% 50%, 0% 40%, 50% 10%, 100% 40%, 80% 50%);
   }
 }
 
@@ -142,5 +184,45 @@ body {
   .section-subtitle {
     @apply text-lg text-gray-600 max-w-2xl;
   }
+
+  .leaf-accent {
+    @apply text-primary-600;
+  }
+
+  .badge-organic {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full text-sm font-semibold text-green-700;
+  }
+
+  .benefit-card {
+    @apply bg-gradient-to-br from-white to-primary-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-primary-100;
+  }
+
+  .trust-badge {
+    @apply flex flex-col items-center gap-3 p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100;
+  }
+
+  .testimonial-card {
+    @apply bg-white p-8 rounded-xl shadow-md border-l-4 border-primary-500 hover:shadow-lg transition-shadow;
+  }
+
+  .cta-button {
+    @apply px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:scale-105 active:scale-95;
+  }
+
+  .section-divider {
+    @apply h-1 w-20 bg-gradient-to-r from-primary-500 to-primary-300 rounded-full;
+  }
 }
 
+/* Utility animations */
+.animate-leaf-float {
+  animation: leafFloat 3s ease-in-out infinite;
+}
+
+.animate-growth-pulse {
+  animation: growthPulse 2s ease-in-out infinite;
+}
+
+.animate-sprout-grow {
+  animation: sproutGrow 1.5s ease-out forwards;
+}

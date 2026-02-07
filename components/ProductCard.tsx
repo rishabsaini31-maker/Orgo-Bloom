@@ -90,9 +90,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-elegant hover:shadow-elegant-lg transition-all duration-300 overflow-hidden group">
+    <div className="bg-white rounded-xl shadow-elegant hover:shadow-elegant-lg transition-all duration-300 overflow-hidden group border border-gray-100 hover:border-primary-200">
       <Link href={`/products/${product.slug}`}>
-        <div className="relative h-56 bg-gradient-to-br from-gray-200 to-gray-100 group">
+        <div className="relative h-56 bg-gradient-to-br from-gray-200 to-gray-100 overflow-hidden">
           {currentImage ? (
             <>
               <Image
@@ -126,9 +126,17 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </svg>
               </button>
 
-              {/* 30% OFF Badge */}
-              <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                {discountPercentage}% OFF
+              {/* 30% OFF Badge + Organic Badge */}
+              <div className="absolute top-3 left-3 flex flex-col gap-2">
+                <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                  {discountPercentage}% OFF
+                </div>
+                <div className="badge-organic text-xs">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.633l4-12a1 1 0 011.265-.632zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                  Organic
+                </div>
               </div>
 
               {/* Image Counter */}
@@ -184,16 +192,32 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       <div className="p-5">
         <Link href={`/products/${product.slug}`}>
-          <h3 className="font-bold text-lg text-gray-900 mb-2 hover:text-primary-600 transition-colors line-clamp-2">
+          <h3 className="font-bold text-lg text-gray-900 mb-3 hover:text-primary-600 transition-colors line-clamp-2 leading-tight">
             {product.name}
           </h3>
         </Link>
 
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10 leading-snug">
           {product.description}
         </p>
 
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+        {/* Organic & Benefits Badges */}
+        <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b border-gray-100">
+          <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-md font-medium flex items-center gap-1">
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+            </svg>
+            Natural
+          </span>
+          <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-md font-medium flex items-center gap-1">
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+            </svg>
+            Pure
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between mb-4">
           <div className="flex flex-col gap-1">
             {/* Original Price (Strikethrough) */}
             <span className="text-xs text-gray-400 line-through font-medium">
@@ -211,19 +235,37 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100">
           <span
-            className={`text-xs font-semibold px-3 py-1 rounded-full ${product.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+            className={`text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1 ${
+              product.stock > 0
+                ? "bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200"
+                : "bg-gradient-to-r from-red-50 to-pink-50 text-red-700 border border-red-200"
+            }`}
           >
-            {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+            {product.stock > 0 ? (
+              <>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                {product.stock} left
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M13.477 14.89A6 6 0 105.11 2.697a6 6 0 008.367 12.193z" clipRule="evenodd" />
+                </svg>
+                Sold out
+              </>
+            )}
           </span>
 
           <button
             onClick={handleAddToCart}
             disabled={product.stock <= 0}
-            className="btn btn-primary text-sm py-2 px-4 flex-1"
+            className="btn btn-primary text-sm py-2 px-4 flex-1 text-sm md:text-base"
           >
-            Add to Cart
+            {product.stock > 0 ? "Add to Cart" : "Unavailable"}
           </button>
         </div>
       </div>
