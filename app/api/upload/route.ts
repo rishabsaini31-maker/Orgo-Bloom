@@ -86,12 +86,14 @@ export async function POST(request: NextRequest) {
     const filepath = join(UPLOAD_DIR, filename);
     try {
       writeFileSync(filepath, buffer);
+      console.log(`File saved successfully: ${filepath}`);
     } catch (localError) {
       console.warn("Local file save failed", localError);
     }
 
     // Return Blob URL if available, otherwise local URL
     const publicUrl = blobUrl || `/uploads/${filename}`;
+    console.log(`Upload complete - URL: ${publicUrl}, Saved to: ${blobUrl ? "blob-and-local" : "local"}`);
 
     return NextResponse.json(
       {

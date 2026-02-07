@@ -74,6 +74,7 @@ export default function NewProductPage() {
         }
 
         const data = await response.json();
+        console.log("Upload response:", data);
         newImageUrls.push(data.url);
       }
 
@@ -81,6 +82,7 @@ export default function NewProductPage() {
         ...formData,
         images: [...formData.images, ...newImageUrls],
       });
+      console.log("Image URLs stored:", newImageUrls);
       toast.success(`${files.length} image(s) uploaded successfully`);
     } catch (error: any) {
       toast.error(error.message || "Failed to upload images");
@@ -347,6 +349,11 @@ export default function NewProductPage() {
                         src={image}
                         alt={`Product ${index + 1}`}
                         className="w-full h-32 object-cover"
+                        onError={(e) => {
+                          console.error(`Failed to load image: ${image}`);
+                          (e.target as HTMLImageElement).src =
+                            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23ddd' width='100' height='100'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' fill='%23666' font-size='12'%3EImage not found%3C/text%3E%3C/svg%3E";
+                        }}
                       />
                       <button
                         type="button"
