@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart-store";
 import { useFavoritesStore } from "@/store/favorites-store";
@@ -89,25 +88,15 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative h-48 bg-gray-200 group">
           {currentImage ? (
             <>
-              {currentImage.startsWith("/uploads/") ? (
-                // Use standard img tag for uploaded files
-                <img
-                  src={currentImage}
-                  alt={product.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  onError={(e) => {
-                    console.error(`Failed to load image: ${currentImage}`);
-                  }}
-                />
-              ) : (
-                // Use Next.js Image for external URLs
-                <Image
-                  src={currentImage}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
-              )}
+              <img
+                src={currentImage}
+                alt={product.name}
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => {
+                  console.error(`Failed to load image: ${currentImage}`);
+                  e.currentTarget.src = "/placeholder-product.jpg";
+                }}
+              />
               {/* Favorite Button */}
               <button
                 type="button"

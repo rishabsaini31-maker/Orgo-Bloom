@@ -42,7 +42,7 @@ export default function EditProductPage() {
     try {
       const response = await productApi.getById(productId);
       const product = response.data.product;
-      
+
       setFormData({
         name: product.name || "",
         slug: product.slug || "",
@@ -383,7 +383,8 @@ export default function EditProductPage() {
                     : "Click or drag images here"}
                 </p>
                 <p className="text-xs text-gray-500">
-                  PNG or JPG up to 50MB each (large files may take time to upload)
+                  PNG or JPG up to 50MB each (large files may take time to
+                  upload)
                 </p>
               </label>
             </div>
@@ -492,11 +493,7 @@ export default function EditProductPage() {
           </div>
 
           <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={saving}
-              className="btn btn-primary"
-            >
+            <button type="submit" disabled={saving} className="btn btn-primary">
               {saving ? "Saving..." : "Update Product"}
             </button>
             <button

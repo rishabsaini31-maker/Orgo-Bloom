@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { productApi } from "@/lib/api-client";
@@ -17,6 +16,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { addItem } = useCartStore();
 
   // Calculate 30% discount
@@ -44,6 +44,21 @@ export default function ProductDetailPage() {
       setLoading(false);
     }
   };
+
+  // Get all available images
+  const allImages = product
+    ? [
+        ...(product.images && product.images.length > 0
+          ? product.images
+          : []),
+        ...(product.imageUrl &&
+        (!product.images || !product.images.includes(product.imageUrl))
+          ? [product.imageUrl]
+          : []),
+      ].filter(Boolean)
+    : [];
+
+  const currentImage = allImages[selectedImageIndex] || product?.imageUrl || "";
 
   const handleAddToCart = () => {
     if (!product || product.stock <= 0) {
@@ -114,39 +129,56 @@ export default function ProductDetailPage() {
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Product Image */}
-            <div className="relative h-96 lg:h-[500px] bg-gray-200 rounded-lg overflow-hidden">
-              {product.imageUrl ? (
-                <>
-                  {product.imageUrl.startsWith("/uploads/") ? (
-                    // Use standard img tag for uploaded files
+            {/* Product Images Collage */}
+            <div className="space-y-4">
+              {/* Main Image */}
+              <div className="relative h-96 lg:h-[500px] bg-gray-200 rounded-lg overflow-hidden group">
+                {currentImage ? (
+                  <>
                     <img
-                      src={product.imageUrl}
+                      src={currentImage}
                       alt={product.name}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
-                        console.error(
-                          `Failed to load image: ${product.imageUrl}`,
-                        );
+                        console.error(`Failed to load image: ${currentImage}`);
+                        e.currentTarget.src = "/placeholder-product.jpg";
                       }}
                     />
-                  ) : (
-                    // Use Next.js Image for external URLs
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  )}
-                  {/* 30% OFF Badge */}
-                  <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-lg">
-                    {discountPercentage}% OFF
+                    {/* 30% OFF Badge */}
+                    <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-lg z-10">
+                      {discountPercentage}% OFF
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-400">
+                    No Image Available
                   </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-400">
-                  No Image Available
+                )}
+              </div>
+
+              {/* Image Thumbnails Grid */}
+              {allImages.length > 1 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {allImages.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`relative h-20 bg-gray-200 rounded-lg overflow-hidden transition-all ${
+                        selectedImageIndex === index
+                          ? "ring-2 ring-primary-600 ring-offset-2"
+                          : "hover:ring-2 hover:ring-gray-300"
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.name} ${index + 1}`}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error(`Failed to load thumbnail: ${image}`);
+                        }}
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

@@ -110,7 +110,9 @@ export async function POST(request: NextRequest) {
           );
         }
         localSaved = true;
-        console.log(`✓ File saved locally: ${filepath} (${fileStats.size} bytes)`);
+        console.log(
+          `✓ File saved locally: ${filepath} (${fileStats.size} bytes)`,
+        );
       } catch (localError) {
         console.error(
           `✗ Local file save failed:`,
