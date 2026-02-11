@@ -3,6 +3,8 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { handleApiError, successResponse } from "@/lib/api-utils";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -33,24 +35,78 @@ export async function POST(request: NextRequest) {
       case "payment.captured": {
         const payment = await prisma.payment.findFirst({
           where: { razorpayPaymentId: payload.id },
+          include: {
+            order: {
+              include: {
+                items: {
+                  include: {
+                    product: true,
+                  },
+                },
+                user: true,
+              },
+            },
+          },
         });
 
         if (payment && payment.status === "PENDING") {
-          await prisma.payment.update({
-            where: { id: payment.id },
-            data: {
-              status: "COMPLETED",
-              method: payload.method,
-            },
+          await prisma.$transaction(async (tx) => {
+            await tx.payment.update({
+              where: { id: payment.id },
+              data: {
+                status: "COMPLETED",
+                method: payload.method,
+              },
+            });
+
+            await tx.order.update({
+              where: { id: payment.orderId },
+              data: {
+                paymentStatus: "COMPLETED",
+                status: "PROCESSING",
+              },
+            });
+
+            // Add order status history
+            await tx.orderStatusHistory.create({
+              data: {
+                orderId: payment.orderId,
+                status: "PROCESSING",
+                notes: "Payment completed successfully",
+              },
+            });
+
+            // Create notification
+            await tx.notification.create({
+              data: {
+                userId: payment.order.userId,
+                title: "Payment Confirmed",
+                message: `Payment for order #${payment.order.orderNumber} has been confirmed.`,
+                type: "PAYMENT",
+                link: `/dashboard`,
+              },
+            });
           });
 
-          await prisma.order.update({
-            where: { id: payment.orderId },
-            data: {
-              paymentStatus: "COMPLETED",
-              status: "PROCESSING",
-            },
-          });
+          // Send order confirmation email (async)
+          Promise.resolve()
+            .then(async () => {
+              const { sendEmail, generateOrderConfirmationEmail } =
+                await import("@/lib/email");
+              await sendEmail({
+                to: payment.order.user.email,
+                subject: `Order Confirmation - ${payment.order.orderNumber}`,
+                html: generateOrderConfirmationEmail(
+                  payment.order.user.name,
+                  payment.order.orderNumber,
+                  payment.order.total,
+                  payment.order.items,
+                ),
+              });
+            })
+            .catch((error) => {
+              console.error("Failed to send order confirmation email:", error);
+            });
 
           console.log(`Payment captured for order: ${payment.orderId}`);
         }
@@ -60,22 +116,38 @@ export async function POST(request: NextRequest) {
       case "payment.failed": {
         const payment = await prisma.payment.findFirst({
           where: { razorpayOrderId: payload.order_id },
+          include: {
+            order: true,
+          },
         });
 
         if (payment) {
-          await prisma.payment.update({
-            where: { id: payment.id },
-            data: {
-              status: "FAILED",
-              razorpayPaymentId: payload.id,
-            },
-          });
+          await prisma.$transaction(async (tx) => {
+            await tx.payment.update({
+              where: { id: payment.id },
+              data: {
+                status: "FAILED",
+                razorpayPaymentId: payload.id,
+              },
+            });
 
-          await prisma.order.update({
-            where: { id: payment.orderId },
-            data: {
-              paymentStatus: "FAILED",
-            },
+            await tx.order.update({
+              where: { id: payment.orderId },
+              data: {
+                paymentStatus: "FAILED",
+              },
+            });
+
+            // Create notification
+            await tx.notification.create({
+              data: {
+                userId: payment.order.userId,
+                title: "Payment Failed",
+                message: `Payment for order #${payment.order.orderNumber} failed. Please try again.`,
+                type: "PAYMENT",
+                link: `/dashboard`,
+              },
+            });
           });
 
           console.log(`Payment failed for order: ${payment.orderId}`);

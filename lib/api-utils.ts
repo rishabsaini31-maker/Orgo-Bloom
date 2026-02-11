@@ -44,6 +44,18 @@ export function handleApiError(error: unknown) {
   );
 }
 
-export function successResponse<T>(data: T, status: number = 200) {
-  return NextResponse.json(data, { status });
+export function successResponse<T>(
+  data: T,
+  status: number = 200,
+  headers?: Record<string, string>,
+) {
+  const responseHeaders = new Headers();
+
+  if (headers) {
+    Object.entries(headers).forEach(([key, value]) => {
+      responseHeaders.set(key, value);
+    });
+  }
+
+  return NextResponse.json(data, { status, headers: responseHeaders });
 }

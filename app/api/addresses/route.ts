@@ -4,6 +4,8 @@ import { authenticateRequest } from "@/lib/auth";
 import { addressSchema } from "@/lib/validations";
 import { handleApiError, successResponse, ApiError } from "@/lib/api-utils";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const user = await authenticateRequest(request);

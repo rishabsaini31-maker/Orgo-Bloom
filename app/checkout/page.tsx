@@ -18,7 +18,7 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, clearCart, getTotalPrice } = useCartStore();
+  const { items, clearCart, removeItem, getTotalPrice } = useCartStore();
   const { user, isAuthenticated } = useAuthStore();
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
@@ -104,6 +104,22 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
       toast.error("Please select a delivery address");
+      return;
+    }
+
+    // Validate that cart doesn't have temp/invalid product IDs
+    const invalidItems = items.filter(
+      (item) =>
+        !item.productId ||
+        item.productId.startsWith("temp-") ||
+        item.productId.length < 10, // Real Prisma IDs are longer
+    );
+
+    if (invalidItems.length > 0) {
+      toast.error(
+        "Your cart contains invalid items. Please refresh and re-add products.",
+      );
+      invalidItems.forEach((item) => removeItem(item.productId));
       return;
     }
 

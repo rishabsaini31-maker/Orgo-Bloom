@@ -4,6 +4,8 @@ import { authenticateRequest } from "@/lib/auth";
 import { handleApiError, successResponse, ApiError } from "@/lib/api-utils";
 import { generateOrderNumber, calculateShipping } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   try {
     const user = await authenticateRequest(request);
@@ -31,9 +33,14 @@ export async function POST(request: NextRequest) {
       throw new ApiError("Invalid shipping address", 400);
     }
 
-    // Verify products and calculate total
+    // Verify products, stock availability, and calculate total
     let subtotal = 0;
-    const orderItems = [];
+    const orderItems: {
+      productId: string;
+      quantity: number;
+      price: number;
+      weight: string;
+    }[] = [];
 
     for (const item of items) {
       const product = await prisma.product.findUnique({
@@ -48,9 +55,10 @@ export async function POST(request: NextRequest) {
         throw new ApiError(`Product ${product.name} is not available`, 400);
       }
 
+      // Stock validation - CRITICAL FOR PRODUCTION
       if (product.stock < item.quantity) {
         throw new ApiError(
-          `Insufficient stock for ${product.name}. Available: ${product.stock}`,
+          `Insufficient stock for ${product.name}. Available: ${product.stock}, Requested: ${item.quantity}`,
           400,
         );
       }
@@ -70,29 +78,66 @@ export async function POST(request: NextRequest) {
     const tax = 0; // Tax calculation can be added based on requirements
     const total = subtotal + shippingCost + tax;
 
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        orderNumber: generateOrderNumber(),
-        userId: user.userId,
-        subtotal,
-        shippingCost,
-        tax,
-        total,
-        status: "PENDING",
-        paymentStatus: "PENDING",
-        shippingAddress: address,
-        items: {
-          create: orderItems,
-        },
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
+    // Create order with transaction to ensure data consistency
+    const order = await prisma.$transaction(async (tx) => {
+      // Decrement stock for each product
+      for (const item of items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              decrement: item.quantity,
+            },
+          },
+        });
+      }
+
+      // Create order
+      const newOrder = await tx.order.create({
+        data: {
+          orderNumber: generateOrderNumber(),
+          userId: user.userId,
+          subtotal,
+          shippingCost,
+          tax,
+          total,
+          status: "PENDING",
+          paymentStatus: "PENDING",
+          shippingAddress: address,
+          items: {
+            create: orderItems,
           },
         },
-      },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+
+      // Create initial order status history
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId: newOrder.id,
+          status: "PENDING",
+          notes: "Order created",
+        },
+      });
+
+      // Create notification
+      await tx.notification.create({
+        data: {
+          userId: user.userId,
+          title: "Order Placed",
+          message: `Your order #${newOrder.orderNumber} has been placed successfully.`,
+          type: "ORDER",
+          link: `/dashboard`,
+        },
+      });
+
+      return newOrder;
     });
 
     return successResponse({ order }, 201);

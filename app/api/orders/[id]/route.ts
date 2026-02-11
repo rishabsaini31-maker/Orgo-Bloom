@@ -65,27 +65,83 @@ export async function PATCH(
 
     const order = await prisma.order.findUnique({
       where: { id: params.id },
+      include: {
+        user: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     if (!order) {
       throw new ApiError("Order not found", 404);
     }
 
-    const updatedOrder = await prisma.order.update({
-      where: { id: params.id },
-      data: {
-        ...(status && { status }),
-        ...(trackingNumber && { trackingNumber }),
-        ...(notes !== undefined && { notes }),
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // Update order
+      const updated = await tx.order.update({
+        where: { id: params.id },
+        data: {
+          ...(status && { status }),
+          ...(trackingNumber && { trackingNumber }),
+          ...(notes !== undefined && { notes }),
         },
-        payment: true,
-      },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+          payment: true,
+        },
+      });
+
+      // Add status history if status changed
+      if (status && status !== order.status) {
+        await tx.orderStatusHistory.create({
+          data: {
+            orderId: order.id,
+            status,
+            notes: notes || `Status updated to ${status}`,
+            createdBy: user.userId,
+          },
+        });
+
+        // Create notification for customer
+        await tx.notification.create({
+          data: {
+            userId: order.userId,
+            title: "Order Status Updated",
+            message: `Your order #${order.orderNumber} is now ${status}.`,
+            type: "ORDER",
+            link: `/dashboard`,
+          },
+        });
+
+        // Send email notification (async, don't wait)
+        Promise.resolve()
+          .then(async () => {
+            const { sendEmail, generateOrderStatusEmail } =
+              await import("@/lib/email");
+            await sendEmail({
+              to: order.user.email,
+              subject: `Order Update - ${order.orderNumber}`,
+              html: generateOrderStatusEmail(
+                order.user.name,
+                order.orderNumber,
+                status,
+                trackingNumber,
+              ),
+            });
+          })
+          .catch((error) => {
+            console.error("Failed to send order status email:", error);
+          });
+      }
+
+      return updated;
     });
 
     return successResponse({ order: updatedOrder });

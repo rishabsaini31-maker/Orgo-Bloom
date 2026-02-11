@@ -1,43 +1,46 @@
 import { prisma } from "@/lib/prisma";
-import { hashPassword } from "@/lib/auth";
 
+/**
+ * Create admin user via Google OAuth
+ * This script is provided for reference only.
+ *
+ * To create an admin user:
+ * 1. Sign in with Google on /login
+ * 2. Run this script with your Google email to make them admin
+ */
 async function createAdminUser() {
   try {
-    const adminEmail = "omsable5426@gmail.com";
-    const adminPassword = "orgobloom2025";
+    const adminEmail = process.env.ADMIN_EMAIL || "omsable5426@gmail.com";
 
-    // Check if admin user already exists
-    const existingAdmin = await prisma.user.findUnique({
+    console.log("Looking for user with email:", adminEmail);
+
+    // Find existing user
+    const existingUser = await prisma.user.findUnique({
       where: { email: adminEmail },
     });
 
-    if (existingAdmin) {
-      console.log("Admin user already exists");
-      process.exit(0);
+    if (!existingUser) {
+      console.error(
+        "❌ User not found. Please sign in with Google first at /login",
+      );
+      process.exit(1);
     }
 
-    // Hash the password
-    const hashedPassword = await hashPassword(adminPassword);
-
-    // Create admin user
-    const adminUser = await prisma.user.create({
-      data: {
-        email: adminEmail,
-        password: hashedPassword,
-        name: "Admin",
-        role: "ADMIN",
-        emailVerified: true,
-      },
+    // Update user role to ADMIN
+    const adminUser = await prisma.user.update({
+      where: { id: existingUser.id },
+      data: { role: "ADMIN" },
     });
 
-    console.log("✅ Admin user created successfully!");
+    console.log("✅ User promoted to admin successfully!");
     console.log(`Email: ${adminUser.email}`);
     console.log(`Name: ${adminUser.name}`);
     console.log(`Role: ${adminUser.role}`);
+    console.log(`Provider: ${adminUser.provider}`);
 
     process.exit(0);
   } catch (error) {
-    console.error("❌ Error creating admin user:", error);
+    console.error("❌ Error updating user:", error);
     process.exit(1);
   }
 }

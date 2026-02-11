@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Header from "@/components/Header";
@@ -14,6 +15,21 @@ export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
   const { isAuthenticated } = useAuthStore();
+
+  // Clean up invalid items from cart (e.g., temp IDs from old test data)
+  useEffect(() => {
+    const invalidItems = items.filter(
+      (item) =>
+        !item.productId ||
+        item.productId.startsWith("temp-") ||
+        item.productId.length < 10, // Real Prisma IDs are longer
+    );
+
+    if (invalidItems.length > 0) {
+      invalidItems.forEach((item) => removeItem(item.productId));
+      toast.error(`Removed ${invalidItems.length} invalid item(s) from cart`);
+    }
+  }, [items, removeItem]);
 
   const subtotal = getTotalPrice();
   const shipping = subtotal >= 999 ? 0 : 50;

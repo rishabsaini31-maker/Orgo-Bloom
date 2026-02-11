@@ -32,19 +32,37 @@ enum PaymentStatus {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  name          String
-  phone         String?
-  role          Role      @default(CUSTOMER)
-  emailVerified Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  name                String
+  image               String?   // Profile image from OAuth provider
+  phone               String?
+  password            String?   // Optional: for email/password login
   
-  orders        Order[]
-  addresses     Address[]
+  // OAuth fields
+  provider            String    @default("google") // "google" or "email"
+  providerAccountId   String?   // Google sub (subject)
+  emailVerified       DateTime  @default(now()) // Verified by OAuth provider
   
+  // Account management
+  role                Role      @default(CUSTOMER)
+  isBlocked           Boolean   @default(false)
+  blockedAt           DateTime?
+  blockedReason       String?
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  orders              Order[]
+  addresses           Address[]
+  sessions            Session[]
+  recentlyViewed      RecentlyViewed[]
+  notifications       Notification[]
+  reviews             Review[]
+  backInStockAlerts   BackInStockAlert[]
+  chatMessages        ChatMessage[]
+  
+  @@unique([email, provider])
   @@index([email])
   @@map("users")
 }
@@ -72,6 +90,8 @@ model Product {
   updatedAt   DateTime @updatedAt
   
   orderItems  OrderItem[]
+  reviews     Review[]
+  galleryImages ProductImage[]
   
   @@index([slug])
   @@index([category])
@@ -101,12 +121,18 @@ model Order {
   trackingNumber  String?
   notes           String?     @db.Text
   
+  // Cancellation
+  cancelledAt     DateTime?
+  cancelReason    String?
+  
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items           OrderItem[]
   payment         Payment?
+  statusHistory   OrderStatusHistory[]
+  refund          Refund?
   
   @@index([userId])
   @@index([orderNumber])
@@ -193,4 +219,204 @@ model Settings {
   updatedAt DateTime @updatedAt
   
   @@map("settings")
+}
+
+// Session management for "logout all devices"
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// Order status history for timeline
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  status    OrderStatus
+  notes     String?
+  createdBy String?     // Admin user ID who updated
+  createdAt DateTime    @default(now())
+  
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@index([orderId])
+  @@index([createdAt])
+  @@map("order_status_history")
+}
+
+// Refund tracking
+model Refund {
+  id              String        @id @default(cuid())
+  orderId         String        @unique
+  amount          Float
+  reason          String?
+  status          String        @default("PENDING") // PENDING, APPROVED, REJECTED, COMPLETED
+  requestedAt     DateTime      @default(now())
+  processedAt     DateTime?
+  processedBy     String?       // Admin user ID
+  razorpayRefundId String?      @unique
+  notes           String?       @db.Text
+  
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@index([orderId])
+  @@index([status])
+  @@map("refunds")
+}
+
+// Recently viewed products
+model RecentlyViewed {
+  id         String   @id @default(cuid())
+  userId     String
+  productId  String
+  viewedAt   DateTime @default(now())
+  
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([viewedAt])
+  @@map("recently_viewed")
+}
+
+// Notifications system
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String   @db.Text
+  type      String   // ORDER, PAYMENT, SHIPPING, PROMOTION, SYSTEM
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// Product Reviews and Ratings
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  orderId   String?  // Link to verified purchase
+  
+  rating    Int      // 1-5 stars
+  title     String
+  content   String   @db.Text
+  
+  verified  Boolean  @default(false) // Verified purchase badge
+  helpful   Int      @default(0)
+  notHelpful Int     @default(0)
+  
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([productId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+// Product Images Gallery
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  imageUrl  String
+  alt       String?
+  order     Int      @default(0) // For sorting gallery
+  
+  createdAt DateTime @default(now())
+  
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@index([productId])
+  @@map("product_images")
+}
+
+// Back in stock notifications
+model BackInStockAlert {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  
+  notified  Boolean  @default(false)
+  notifiedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([productId, userId])
+  @@index([productId])
+  @@index([userId])
+  @@index([notified])
+  @@map("back_in_stock_alerts")
+}
+
+// Live Chat Messages
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String?  // Null for guest users
+  email     String?  // For guest users
+  name      String?  // For guest users
+  
+  message   String   @db.Text
+  type      String   @default("USER") // USER or ADMIN
+  
+  sessionId String   // Group messages by session
+  
+  createdAt DateTime @default(now())
+  
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+
+// FAQ / Help Articles
+model HelpArticle {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text
+  category  String   // "SHIPPING", "PAYMENT", "PRODUCTS", "RETURNS", "GENERAL"
+  
+  views     Int      @default(0)
+  helpful   Int      @default(0)
+  notHelpful Int     @default(0)
+  
+  published Boolean  @default(true)
+  order     Int      @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([category])
+  @@index([published])
+  @@map("help_articles")
 }

@@ -4,18 +4,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useAuthStore } from "@/store/auth-store";
 import { useCartStore } from "@/store/cart-store";
 import { useFavoritesStore } from "@/store/favorites-store";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { data: session, status } = useSession();
   const { getTotalItems } = useCartStore();
   const { favorites } = useFavoritesStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -23,9 +24,8 @@ export default function Header() {
 
   const isActive = (path: string) => mounted && pathname === path;
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
+  const handleLogout = async () => {
+    await signOut({ redirect: true, callbackUrl: "/" });
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -67,43 +67,61 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-8">
             <Link
               href="/"
-              className={`font-medium transition-colors ${isActive("/") ? "text-primary-600" : "text-gray-700 hover:text-primary-600"}`}
+              className={`font-medium transition-colors ${
+                isActive("/")
+                  ? "text-green-700"
+                  : "text-gray-700 hover:text-green-700"
+              }`}
             >
               Home
             </Link>
             <Link
               href="/products"
-              className={`font-medium transition-colors ${isActive("/products") ? "text-primary-600" : "text-gray-700 hover:text-primary-600"}`}
+              className={`font-medium transition-colors ${
+                isActive("/products")
+                  ? "text-green-700"
+                  : "text-gray-700 hover:text-green-700"
+              }`}
             >
               Products
             </Link>
             <button
               onClick={() => scrollToSection("about")}
-              className="font-medium text-gray-700 hover:text-primary-600 transition-colors"
+              className="font-medium text-gray-700 hover:text-green-700 transition-colors"
             >
               About Us
             </button>
             <button
               onClick={() => scrollToSection("contact")}
-              className="hover:text-primary-600"
+              className="hover:text-green-700"
             >
               Contact
             </button>
-            {isAuthenticated && user?.role === "CUSTOMER" && (
-              <Link
-                href="/dashboard"
-                className={`hover:text-primary-600 ${isActive("/dashboard") ? "text-primary-600 font-semibold" : ""}`}
-              >
-                Dashboard
-              </Link>
-            )}
-            {isAuthenticated && user?.role === "ADMIN" && (
-              <Link
-                href="/admin"
-                className={`hover:text-primary-600 ${isActive("/admin") ? "text-primary-600 font-semibold" : ""}`}
-              >
-                Admin
-              </Link>
+            {session && status === "authenticated" && (
+              <>
+                {session.user?.role === "CUSTOMER" && (
+                  <Link
+                    href="/dashboard"
+                    className={`hover:text-green-700 ${
+                      isActive("/dashboard")
+                        ? "text-green-700 font-semibold"
+                        : ""
+                    }`}
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                {session.user?.role === "ADMIN" && (
+                  <Link
+                    href="/admin"
+                    className={`hover:text-green-700 ${
+                      isActive("/admin") ? "text-green-700 font-semibold" : ""
+                    }`}
+                  >
+                    Admin
+                  </Link>
+                )}
+              </>
             )}
           </nav>
 
@@ -118,7 +136,7 @@ export default function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
               />
               <svg
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -141,7 +159,7 @@ export default function Header() {
             <Link href="/favorites" className="relative group">
               <div className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <svg
-                  className="w-6 h-6 text-gray-700 group-hover:text-primary-600 transition-colors"
+                  className="w-6 h-6 text-gray-700 group-hover:text-green-700 transition-colors"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -165,7 +183,7 @@ export default function Header() {
             <Link href="/cart" className="relative group">
               <div className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <svg
-                  className="w-6 h-6 text-gray-700 group-hover:text-primary-600 transition-colors"
+                  className="w-6 h-6 text-gray-700 group-hover:text-green-700 transition-colors"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -179,32 +197,119 @@ export default function Header() {
                 </svg>
               </div>
               {getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                <span className="absolute -top-1 -right-1 bg-green-700 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                   {getTotalItems()}
                 </span>
               )}
             </Link>
 
-            {isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">{user?.name}</span>
+            {/* Auth Section */}
+            {status === "authenticated" && session?.user ? (
+              <div className="relative">
+                {/* Profile Button */}
                 <button
-                  onClick={handleLogout}
-                  className="btn btn-secondary text-sm"
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors group"
                 >
-                  Logout
+                  {session.user.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-white text-sm font-semibold">
+                      {session.user.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+                  <span className="hidden sm:inline text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                    {session.user.name?.split(" ")[0] || "Account"}
+                  </span>
                 </button>
+
+                {/* Profile Dropdown Menu */}
+                {showProfileMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50">
+                    {/* User Info */}
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {session.user.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {session.user.email}
+                      </p>
+                    </div>
+
+                    {/* Menu Items */}
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-700 transition-colors"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      href="/dashboard"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-700 transition-colors"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-700 transition-colors"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      Orders
+                    </Link>
+
+                    {session.user.role === "ADMIN" && (
+                      <>
+                        <div className="border-t border-gray-100" />
+                        <Link
+                          href="/admin"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-700 transition-colors"
+                          onClick={() => setShowProfileMenu(false)}
+                        >
+                          Admin Panel
+                        </Link>
+                      </>
+                    )}
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-100" />
+
+                    {/* Logout */}
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        handleLogout();
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
-            ) : (
+            ) : status === "unauthenticated" ? (
               <div className="flex items-center gap-2">
-                <Link href="/auth/login" className="btn btn-secondary text-sm">
+                <Link
+                  href="/login"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                >
                   Login
                 </Link>
-                <Link href="/auth/register" className="btn btn-primary text-sm">
+                <Link
+                  href="/login"
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 transition-colors"
+                >
                   Sign Up
                 </Link>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
