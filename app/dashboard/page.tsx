@@ -77,7 +77,9 @@ export default function DashboardPage() {
         <div className="bg-primary-600 text-white py-12">
           <div className="container mx-auto px-4">
             <h1 className="text-4xl font-bold mb-2">My Dashboard</h1>
-            <p className="text-primary-100">Welcome back, {session?.user?.name || "User"}!</p>
+            <p className="text-primary-100">
+              Welcome back, {session?.user?.name || "User"}!
+            </p>
           </div>
         </div>
 

@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
                 to: payment.order.user.email,
                 subject: `Order Confirmation - ${payment.order.orderNumber}`,
                 html: generateOrderConfirmationEmail(
-                  payment.order.user.name,
+                  payment.order.user.name || "Customer",
                   payment.order.orderNumber,
                   payment.order.total,
                   payment.order.items,

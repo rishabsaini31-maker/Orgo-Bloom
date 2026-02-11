@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const emailSent = await sendEmail({
       to: user.email,
       subject: "Password Reset Request - Orgobloom",
-      html: generatePasswordResetEmail(user.name, resetLink),
+      html: generatePasswordResetEmail(user.name || "User", resetLink),
     });
 
     if (!emailSent) {

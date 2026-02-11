@@ -51,6 +51,11 @@ export async function verifyEmailVerificationToken(
 }
 
 // Session Management Functions
+/**
+ * @deprecated Legacy session management - not compatible with NextAuth
+ * NextAuth handles sessions automatically
+ */
+/*
 export async function createSession(
   userId: string,
   token: string,
@@ -91,3 +96,4 @@ export async function cleanupExpiredTokens(): Promise<void> {
     }),
   ]);
 }
+*/

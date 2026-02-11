@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     await sendEmail({
       to: user.email,
       subject: "Verify Your Email - Orgobloom",
-      html: generateVerificationEmail(user.name, verificationLink),
+      html: generateVerificationEmail(user.name || "User", verificationLink),
     });
 
     return successResponse({

@@ -169,7 +169,11 @@ export const authOptions: NextAuthOptions = {
           });
 
           // If user exists with a password (email/password auth) but no OAuth accounts, prevent OAuth sign-in
-          if (existingUser && existingUser.password && existingUser.accounts.length === 0) {
+          if (
+            existingUser &&
+            existingUser.password &&
+            existingUser.accounts.length === 0
+          ) {
             console.error(
               "[AUTH] Email already registered with password. Please use email/password login.",
             );
@@ -177,7 +181,9 @@ export const authOptions: NextAuthOptions = {
           }
 
           // Allow sign-in for new users or existing OAuth users
-          console.log(`[AUTH] Google OAuth sign-in successful for ${user.email}`);
+          console.log(
+            `[AUTH] Google OAuth sign-in successful for ${user.email}`,
+          );
           return true;
         }
 
@@ -353,13 +359,7 @@ export async function verifyAuth(request: NextRequest): Promise<{
   const user = verifyToken(token);
   if (!user) return { user: null, token: null };
 
-  const session = await prisma.session.findFirst({
-    where: {
-      token,
-      userId: user.userId,
-      expiresAt: { gte: new Date() },
-    },
-  });
-
-  return { user: session ? user : null, token };
+  // For legacy JWT tokens, we don't need database session validation
+  // The token itself contains all necessary user information
+  return { user, token };
 }

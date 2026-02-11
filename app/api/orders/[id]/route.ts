@@ -129,7 +129,7 @@ export async function PATCH(
               to: order.user.email,
               subject: `Order Update - ${order.orderNumber}`,
               html: generateOrderStatusEmail(
-                order.user.name,
+                order.user.name || "Customer",
                 order.orderNumber,
                 status,
                 trackingNumber,

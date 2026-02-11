@@ -198,13 +198,17 @@ export default function CheckoutPage() {
       <Header />
       <main className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 lg:mb-8">Checkout</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 lg:mb-8">
+            Checkout
+          </h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Delivery Address */}
               <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Delivery Address</h2>
+                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
+                  Delivery Address
+                </h2>
 
                 {addresses.length > 0 && !showAddressForm ? (
                   <div className="space-y-3">
@@ -232,8 +236,10 @@ export default function CheckoutPage() {
                             </span>
                             <p className="text-xs sm:text-sm text-gray-600 mt-1">
                               {address.addressLine1},{" "}
-                              {address.addressLine2 && `${address.addressLine2}, `}
-                              {address.city}, {address.state} - {address.pincode}
+                              {address.addressLine2 &&
+                                `${address.addressLine2}, `}
+                              {address.city}, {address.state} -{" "}
+                              {address.pincode}
                             </p>
                             <p className="text-xs sm:text-sm text-gray-600">
                               Phone: {address.phone}
@@ -251,7 +257,10 @@ export default function CheckoutPage() {
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleAddAddress} className="space-y-3 sm:space-y-4">
+                  <form
+                    onSubmit={handleAddAddress}
+                    className="space-y-3 sm:space-y-4"
+                  >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
@@ -394,7 +403,9 @@ export default function CheckoutPage() {
 
               {/* Order Items */}
               <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Order Items</h2>
+                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
+                  Order Items
+                </h2>
                 <div className="space-y-3">
                   {items.map((item) => (
                     <div
@@ -402,7 +413,9 @@ export default function CheckoutPage() {
                       className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 border-b gap-2"
                     >
                       <div className="flex-1">
-                        <p className="font-semibold text-sm sm:text-base">{item.name}</p>
+                        <p className="font-semibold text-sm sm:text-base">
+                          {item.name}
+                        </p>
                         <p className="text-xs sm:text-sm text-gray-600">
                           {item.weight} × {item.quantity}
                         </p>
@@ -417,7 +430,9 @@ export default function CheckoutPage() {
 
               {/* Payment Method */}
               <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Payment Method</h2>
+                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
+                  Payment Method
+                </h2>
                 <div className="space-y-3">
                   <label
                     className={`block p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-colors ${
@@ -438,7 +453,9 @@ export default function CheckoutPage() {
                         className="mt-1 flex-shrink-0"
                       />
                       <div className="flex-1">
-                        <span className="font-semibold text-sm sm:text-base">UPI / Online Payment</span>
+                        <span className="font-semibold text-sm sm:text-base">
+                          UPI / Online Payment
+                        </span>
                         <p className="text-xs sm:text-sm text-gray-600 mt-1">
                           Pay securely using UPI, Cards, Net Banking, or Wallets
                         </p>
@@ -461,13 +478,18 @@ export default function CheckoutPage() {
                         checked={paymentMethod === "COD"}
                         onChange={(e) =>
                           setPaymentMethod(e.target.value as "UPI" | "COD")
-                      }
-                      className="mr-3"
-                    />
-                    <span className="font-semibold">Cash on Delivery</span>
-                    <p className="text-sm text-gray-600 mt-1 ml-7">
-                      Pay when you receive the order
-                    </p>
+                        }
+                        className="mt-1 flex-shrink-0"
+                      />
+                      <div className="flex-1">
+                        <span className="font-semibold text-sm sm:text-base">
+                          Cash on Delivery
+                        </span>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                          Pay when you receive the order
+                        </p>
+                      </div>
+                    </div>
                   </label>
                 </div>
               </div>
