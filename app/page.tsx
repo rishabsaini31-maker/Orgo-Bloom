@@ -45,14 +45,16 @@ export default async function HomePage() {
       <Header />
       <main>
         {/* Full Screen Video Section */}
-        <section className="relative w-full h-screen overflow-hidden">
+        <section className="relative w-full h-[60vh] sm:h-[75vh] lg:h-screen overflow-hidden">
           <VideoPlayer videos={videos} />
           {/* Overlay with scroll indicator */}
           <div className="absolute inset-0 bg-black/20"></div>
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-center">
-            <p className="mb-2 font-semibold">Scroll to explore</p>
+          <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 text-white text-center">
+            <p className="mb-2 font-semibold text-sm sm:text-base">
+              Scroll to explore
+            </p>
             <svg
-              className="w-6 h-6 mx-auto animate-bounce"
+              className="w-5 h-5 sm:w-6 sm:h-6 mx-auto animate-bounce"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -68,33 +70,33 @@ export default async function HomePage() {
         </section>
 
         {/* Our Products */}
-        <section className="py-16 bg-white">
+        <section className="py-8 sm:py-12 lg:py-16 bg-white">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 sm:mb-8 lg:mb-12">
               <div>
-                <h2 className="text-3xl font-bold mb-2 text-gray-900">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-gray-900">
                   Products
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600">
                   Naturally sourced organic fertilizers for healthy plants
                 </p>
               </div>
               <Link
                 href="/products"
-                className="text-primary-600 hover:text-primary-700 font-medium text-sm mt-4 md:mt-0 flex items-center gap-1"
+                className="text-primary-600 hover:text-primary-700 font-medium text-sm mt-3 md:mt-0 flex items-center gap-1"
               >
                 View all →
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {products.length > 0 ? (
                 products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))
               ) : (
-                <div className="col-span-3 text-center py-16">
-                  <p className="text-gray-500 text-lg">
+                <div className="col-span-full text-center py-12 sm:py-16">
+                  <p className="text-gray-500 text-base sm:text-lg">
                     No products available. Please add products from the admin
                     panel.
                   </p>
@@ -105,69 +107,69 @@ export default async function HomePage() {
         </section>
 
         {/* Organic Benefits */}
-        <section className="py-16 bg-white">
+        <section className="py-8 sm:py-12 lg:py-16 bg-white">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-2 text-gray-900">
+            <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-gray-900">
                 About Organic Fertilizers
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 Natural choices for healthier soil and stronger plants
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
+              <div className="bg-gray-50 p-4 sm:p-6 rounded-lg">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded flex items-center justify-center mb-3 sm:mb-4">
                   <svg
-                    className="w-6 h-6 text-gray-700"
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
                     <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-gray-900">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-gray-900">
                   Nutrient Rich
                 </h3>
-                <p className="text-gray-700">
+                <p className="text-sm sm:text-base text-gray-700">
                   100% organic ingredients packed with essential nutrients for
                   optimal plant growth
                 </p>
               </div>
 
               <div className="benefit-card">
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
                   <svg
-                    className="w-6 h-6 text-gray-700"
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
                     <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.3A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
                   </svg>
                 </div>
-                <h3 className="font-semibold mb-2 text-gray-900">
+                <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900">
                   Soil Enrichment
                 </h3>
-                <p className="text-sm text-gray-700">
+                <p className="text-xs sm:text-sm text-gray-700">
                   Improves soil structure and microbial activity
                 </p>
               </div>
 
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center mb-4">
+              <div className="bg-gray-50 p-4 sm:p-6 rounded-lg">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded flex items-center justify-center mb-3 sm:mb-4">
                   <svg
-                    className="w-6 h-6 text-gray-700"
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
                     <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.343a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM15.657 14.657a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707z" />
                   </svg>
                 </div>
-                <h3 className="font-semibold mb-2 text-gray-900">
+                <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900">
                   Eco-Friendly
                 </h3>
-                <p className="text-sm text-gray-700">
+                <p className="text-xs sm:text-sm text-gray-700">
                   No harmful chemicals or synthetic additives
                 </p>
               </div>
@@ -176,12 +178,12 @@ export default async function HomePage() {
         </section>
 
         {/* Information Section */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-8 sm:py-12 lg:py-16 bg-gray-50">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4 text-gray-900">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-gray-900">
               Organic Fertilizers for Gardens
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
               Natural and sustainable way to nourish your plants and improve
               soil health
             </p>
@@ -189,9 +191,9 @@ export default async function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-8 sm:py-12 lg:py-16 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               <div className="text-center">
                 <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg

@@ -10,6 +10,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
 }
 
 body {
@@ -17,6 +19,11 @@ body {
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
     Cantarell, sans-serif;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+  /* Better text rendering on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Scroll Animation Keyframes */
@@ -232,4 +239,54 @@ body {
 
 .animate-sprout-grow {
   animation: sproutGrow 1.5s ease-out forwards;
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 768px) {
+  /* Make touch targets larger on mobile */
+  button,
+  a {
+    min-height: 44px;
+  }
+
+  /* Better spacing on mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Prevent text from being too small */
+  body {
+    font-size: 16px;
+  }
+}
+
+/* Responsive container */
+.responsive-container {
+  @apply container mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Responsive grid utilities */
+.responsive-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
+}
+
+/* Mobile menu transitions */
+.mobile-menu-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.mobile-menu-exit {
+  animation: slideOutRight 0.3s ease-in;
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }

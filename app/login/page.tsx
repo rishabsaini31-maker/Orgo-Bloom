@@ -25,22 +25,15 @@ function LoginContent() {
       setIsLoading(true);
       setError(null);
 
-      const result = await signIn("google", {
-        redirect: false,
+      // For Google OAuth, we need to redirect to Google's login page
+      // This will redirect the entire page, not just update the state
+      await signIn("google", {
         callbackUrl,
+        redirect: true, // Allow full page redirect to Google
       });
-
-      if (result?.error) {
-        setError("Failed to sign in with Google. Please try again.");
-        console.error("[AUTH] Google sign-in error:", result.error);
-      } else if (result?.ok) {
-        // Redirect on success
-        router.push(callbackUrl);
-      }
     } catch (err: any) {
       setError("An unexpected error occurred. Please try again.");
       console.error("[AUTH] Sign-in exception:", err);
-    } finally {
       setIsLoading(false);
     }
   };

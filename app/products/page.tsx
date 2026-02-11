@@ -58,27 +58,32 @@ function ProductsContent() {
     <>
       <Header />
       <main className="min-h-screen">
-        <div className="bg-primary-600 text-white py-12">
+        <div className="bg-primary-600 text-white py-8 sm:py-10 lg:py-12">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl font-bold mb-4">Our Products</h1>
-            <p className="text-primary-100 text-lg">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">
+              Our Products
+            </h1>
+            <p className="text-primary-100 text-sm sm:text-base lg:text-lg">
               Browse our collection of premium organic fertilizers
             </p>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="mb-8">
+          <form onSubmit={handleSearch} className="mb-6 sm:mb-8">
             <div className="flex gap-2 max-w-xl">
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search products..."
-                className="input flex-1"
+                className="input flex-1 text-sm sm:text-base"
               />
-              <button type="submit" className="btn btn-primary">
+              <button
+                type="submit"
+                className="btn btn-primary text-sm sm:text-base px-4 sm:px-6"
+              >
                 Search
               </button>
             </div>
@@ -87,23 +92,25 @@ function ProductsContent() {
           {/* Products Grid */}
           {loading ? (
             <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-              <p className="mt-4 text-gray-600">Loading products...</p>
+              <div className="inline-block animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary-600"></div>
+              <p className="mt-4 text-gray-600 text-sm sm:text-base">
+                Loading products...
+              </p>
             </div>
           ) : products.length > 0 ? (
             <>
               {/* Cow Manure Section */}
               {cowManureProducts.length > 0 && (
-                <section className="mb-12">
-                  <div className="mb-6">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                <section className="mb-8 sm:mb-12">
+                  <div className="mb-4 sm:mb-6">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
                       Cow Manure Products
                     </h2>
-                    <p className="text-gray-600">
+                    <p className="text-sm sm:text-base text-gray-600">
                       Premium organic cow manure fertilizers
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     {cowManureProducts.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -113,16 +120,16 @@ function ProductsContent() {
 
               {/* Chicken Manure Section */}
               {chickenManureProducts.length > 0 && (
-                <section className="mb-12">
-                  <div className="mb-6">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                <section className="mb-8 sm:mb-12">
+                  <div className="mb-4 sm:mb-6">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
                       Chicken Manure Products
                     </h2>
-                    <p className="text-gray-600">
+                    <p className="text-sm sm:text-base text-gray-600">
                       High-nutrient organic chicken manure fertilizers
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     {chickenManureProducts.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -132,21 +139,21 @@ function ProductsContent() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex justify-center gap-2 mt-8">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-2 mt-6 sm:mt-8">
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="btn btn-secondary disabled:opacity-50"
+                    className="btn btn-secondary disabled:opacity-50 w-full sm:w-auto text-sm sm:text-base"
                   >
                     Previous
                   </button>
-                  <span className="px-4 py-2">
+                  <span className="px-4 py-2 text-sm sm:text-base">
                     Page {page} of {totalPages}
                   </span>
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="btn btn-secondary disabled:opacity-50"
+                    className="btn btn-secondary disabled:opacity-50 w-full sm:w-auto text-sm sm:text-base"
                   >
                     Next
                   </button>
@@ -154,7 +161,7 @@ function ProductsContent() {
               )}
             </>
           ) : (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-500 text-sm sm:text-base">
               No products found. Try adjusting your search.
             </div>
           )}

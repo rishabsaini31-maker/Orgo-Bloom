@@ -2,16 +2,16 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useAuthStore } from "@/store/auth-store";
 import { orderApi } from "@/lib/api-client";
 import { formatPrice, formatDate } from "@/lib/utils";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { data: session, status } = useSession();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,13 +27,20 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== "CUSTOMER") {
-      router.push("/auth/login");
+    // Wait for session to load
+    if (status === "loading") return;
+
+    // Redirect to login if not authenticated
+    if (status === "unauthenticated") {
+      router.push("/login");
       return;
     }
 
-    fetchOrders();
-  }, [isAuthenticated, user?.role, router, fetchOrders]);
+    // Fetch orders if authenticated
+    if (status === "authenticated") {
+      fetchOrders();
+    }
+  }, [status, router, fetchOrders]);
 
   const getStatusColor = (status: string) => {
     const colors: any = {
@@ -47,6 +54,22 @@ export default function DashboardPage() {
     return colors[status] || "bg-gray-100 text-gray-800";
   };
 
+  // Show loading while checking authentication
+  if (status === "loading") {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Header />
@@ -54,7 +77,7 @@ export default function DashboardPage() {
         <div className="bg-primary-600 text-white py-12">
           <div className="container mx-auto px-4">
             <h1 className="text-4xl font-bold mb-2">My Dashboard</h1>
-            <p className="text-primary-100">Welcome back, {user?.name}!</p>
+            <p className="text-primary-100">Welcome back, {session?.user?.name || "User"}!</p>
           </div>
         </div>
 

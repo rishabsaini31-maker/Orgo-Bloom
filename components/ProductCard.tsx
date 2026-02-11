@@ -198,19 +198,19 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
 
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         <Link href={`/products/${product.slug}`}>
-          <h3 className="font-bold text-lg text-gray-900 mb-3 hover:text-primary-600 transition-colors line-clamp-2 leading-tight">
+          <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2 sm:mb-3 hover:text-primary-600 transition-colors line-clamp-2 leading-tight">
             {product.name}
           </h3>
         </Link>
 
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10 leading-snug">
+        <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 h-8 sm:h-10 leading-snug">
           {product.description}
         </p>
 
         {/* Organic & Benefits Badges */}
-        <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b border-gray-100">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-100">
           <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-md font-medium flex items-center gap-1">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
@@ -229,27 +229,27 @@ export default function ProductCard({ product }: ProductCardProps) {
           </span>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex flex-col gap-0.5 sm:gap-1">
             {/* Original Price (Strikethrough) */}
-            <span className="text-xs text-gray-400 line-through font-medium">
+            <span className="text-[10px] sm:text-xs text-gray-400 line-through font-medium">
               {formatPrice(product.price)}
             </span>
             {/* Discounted Price */}
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
               {formatPrice(discountedPrice)}
             </span>
           </div>
           <div className="text-right">
-            <span className="inline-block bg-primary-50 text-primary-700 text-xs font-semibold px-3 py-1 rounded-full">
+            <span className="inline-block bg-primary-50 text-primary-700 text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1 rounded-full">
               {product.weight}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-100">
           <span
-            className={`text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1 ${
+            className={`text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg flex items-center gap-1 ${
               product.stock > 0
                 ? "bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200"
                 : "bg-gradient-to-r from-red-50 to-pink-50 text-red-700 border border-red-200"
@@ -291,7 +291,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleAddToCart}
             disabled={product.stock <= 0}
-            className="btn btn-primary text-sm py-2 px-4 flex-1 text-sm md:text-base"
+            className="btn btn-primary text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4 flex-1"
           >
             {product.stock > 0 ? "Add to Cart" : "Unavailable"}
           </button>

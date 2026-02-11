@@ -197,56 +197,64 @@ export default function CheckoutPage() {
     <>
       <Header />
       <main className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+        <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 lg:mb-8">Checkout</h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Delivery Address */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold mb-4">Delivery Address</h2>
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Delivery Address</h2>
 
                 {addresses.length > 0 && !showAddressForm ? (
                   <div className="space-y-3">
                     {addresses.map((address) => (
                       <label
                         key={address.id}
-                        className={`block p-4 border-2 rounded-lg cursor-pointer ${selectedAddress === address.id ? "border-primary-600 bg-primary-50" : "border-gray-200"}`}
+                        className={`block p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                          selectedAddress === address.id
+                            ? "border-primary-600 bg-primary-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
                       >
-                        <input
-                          type="radio"
-                          name="address"
-                          value={address.id}
-                          checked={selectedAddress === address.id}
-                          onChange={(e) => setSelectedAddress(e.target.value)}
-                          className="mr-3"
-                        />
-                        <span className="font-semibold">
-                          {address.fullName}
-                        </span>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {address.addressLine1},{" "}
-                          {address.addressLine2 && `${address.addressLine2}, `}
-                          {address.city}, {address.state} - {address.pincode}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Phone: {address.phone}
-                        </p>
+                        <div className="flex items-start gap-2">
+                          <input
+                            type="radio"
+                            name="address"
+                            value={address.id}
+                            checked={selectedAddress === address.id}
+                            onChange={(e) => setSelectedAddress(e.target.value)}
+                            className="mt-1 flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <span className="font-semibold text-sm sm:text-base">
+                              {address.fullName}
+                            </span>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                              {address.addressLine1},{" "}
+                              {address.addressLine2 && `${address.addressLine2}, `}
+                              {address.city}, {address.state} - {address.pincode}
+                            </p>
+                            <p className="text-xs sm:text-sm text-gray-600">
+                              Phone: {address.phone}
+                            </p>
+                          </div>
+                        </div>
                       </label>
                     ))}
 
                     <button
                       onClick={() => setShowAddressForm(true)}
-                      className="text-primary-600 hover:text-primary-700 font-semibold"
+                      className="text-primary-600 hover:text-primary-700 font-semibold text-sm sm:text-base"
                     >
                       + Add New Address
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleAddAddress} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <form onSubmit={handleAddAddress} className="space-y-3 sm:space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                           Full Name
                         </label>
                         <input
@@ -259,11 +267,11 @@ export default function CheckoutPage() {
                               fullName: e.target.value,
                             })
                           }
-                          className="input"
+                          className="input text-sm sm:text-base"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                           Phone
                         </label>
                         <input
@@ -273,13 +281,13 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             setFormData({ ...formData, phone: e.target.value })
                           }
-                          className="input"
+                          className="input text-sm sm:text-base"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">
+                      <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                         Address Line 1
                       </label>
                       <input
@@ -292,12 +300,12 @@ export default function CheckoutPage() {
                             addressLine1: e.target.value,
                           })
                         }
-                        className="input"
+                        className="input text-sm sm:text-base"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">
+                      <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                         Address Line 2 (Optional)
                       </label>
                       <input
@@ -309,13 +317,13 @@ export default function CheckoutPage() {
                             addressLine2: e.target.value,
                           })
                         }
-                        className="input"
+                        className="input text-sm sm:text-base"
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                      <div className="col-span-2 sm:col-span-1">
+                        <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                           City
                         </label>
                         <input
@@ -325,11 +333,11 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             setFormData({ ...formData, city: e.target.value })
                           }
-                          className="input"
+                          className="input text-sm sm:text-base"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                           State
                         </label>
                         <input
@@ -339,11 +347,11 @@ export default function CheckoutPage() {
                           onChange={(e) =>
                             setFormData({ ...formData, state: e.target.value })
                           }
-                          className="input"
+                          className="input text-sm sm:text-base"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                           Pincode
                         </label>
                         <input
@@ -357,16 +365,16 @@ export default function CheckoutPage() {
                               pincode: e.target.value,
                             })
                           }
-                          className="input"
+                          className="input text-sm sm:text-base"
                         />
                       </div>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <button
                         type="submit"
                         disabled={loading}
-                        className="btn btn-primary"
+                        className="btn btn-primary text-sm sm:text-base"
                       >
                         Save Address
                       </button>
@@ -374,7 +382,7 @@ export default function CheckoutPage() {
                         <button
                           type="button"
                           onClick={() => setShowAddressForm(false)}
-                          className="btn btn-secondary"
+                          className="btn btn-secondary text-sm sm:text-base"
                         >
                           Cancel
                         </button>
@@ -385,21 +393,21 @@ export default function CheckoutPage() {
               </div>
 
               {/* Order Items */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold mb-4">Order Items</h2>
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Order Items</h2>
                 <div className="space-y-3">
                   {items.map((item) => (
                     <div
                       key={item.productId}
-                      className="flex justify-between items-center py-2 border-b"
+                      className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 border-b gap-2"
                     >
-                      <div>
-                        <p className="font-semibold">{item.name}</p>
-                        <p className="text-sm text-gray-600">
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm sm:text-base">{item.name}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">
                           {item.weight} × {item.quantity}
                         </p>
                       </div>
-                      <span className="font-semibold">
+                      <span className="font-semibold text-sm sm:text-base">
                         {formatPrice(item.price * item.quantity)}
                       </span>
                     </div>
@@ -408,46 +416,51 @@ export default function CheckoutPage() {
               </div>
 
               {/* Payment Method */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold mb-4">Payment Method</h2>
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Payment Method</h2>
                 <div className="space-y-3">
                   <label
-                    className={`block p-4 border-2 rounded-lg cursor-pointer ${
+                    className={`block p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-colors ${
                       paymentMethod === "UPI"
                         ? "border-primary-600 bg-primary-50"
-                        : "border-gray-200"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="UPI"
-                      checked={paymentMethod === "UPI"}
-                      onChange={(e) =>
-                        setPaymentMethod(e.target.value as "UPI" | "COD")
-                      }
-                      className="mr-3"
-                    />
-                    <span className="font-semibold">UPI / Online Payment</span>
-                    <p className="text-sm text-gray-600 mt-1 ml-7">
-                      Pay securely using UPI, Cards, Net Banking, or Wallets
-                    </p>
+                    <div className="flex items-start gap-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="UPI"
+                        checked={paymentMethod === "UPI"}
+                        onChange={(e) =>
+                          setPaymentMethod(e.target.value as "UPI" | "COD")
+                        }
+                        className="mt-1 flex-shrink-0"
+                      />
+                      <div className="flex-1">
+                        <span className="font-semibold text-sm sm:text-base">UPI / Online Payment</span>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                          Pay securely using UPI, Cards, Net Banking, or Wallets
+                        </p>
+                      </div>
+                    </div>
                   </label>
 
                   <label
-                    className={`block p-4 border-2 rounded-lg cursor-pointer ${
+                    className={`block p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-colors ${
                       paymentMethod === "COD"
                         ? "border-primary-600 bg-primary-50"
-                        : "border-gray-200"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="COD"
-                      checked={paymentMethod === "COD"}
-                      onChange={(e) =>
-                        setPaymentMethod(e.target.value as "UPI" | "COD")
+                    <div className="flex items-start gap-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="COD"
+                        checked={paymentMethod === "COD"}
+                        onChange={(e) =>
+                          setPaymentMethod(e.target.value as "UPI" | "COD")
                       }
                       className="mr-3"
                     />

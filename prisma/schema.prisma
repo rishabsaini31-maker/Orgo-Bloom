@@ -34,15 +34,17 @@ enum PaymentStatus {
 model User {
   id                  String    @id @default(cuid())
   email               String    @unique
-  name                String
+  name                String?
   image               String?   // Profile image from OAuth provider
   phone               String?
   password            String?   // Optional: for email/password login
   
-  // OAuth fields
+  // NextAuth fields
+  emailVerified       DateTime? // Verified by OAuth provider
+  
+  // OAuth fields (legacy, kept for compatibility)
   provider            String    @default("google") // "google" or "email"
   providerAccountId   String?   // Google sub (subject)
-  emailVerified       DateTime  @default(now()) // Verified by OAuth provider
   
   // Account management
   role                Role      @default(CUSTOMER)
@@ -53,18 +55,41 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   
+  // Relations
   orders              Order[]
   addresses           Address[]
-  sessions            Session[]
+  accounts            Account[] // NextAuth accounts
+  sessions            Session[] // NextAuth sessions
   recentlyViewed      RecentlyViewed[]
   notifications       Notification[]
   reviews             Review[]
   backInStockAlerts   BackInStockAlert[]
   chatMessages        ChatMessage[]
   
-  @@unique([email, provider])
   @@index([email])
   @@map("users")
+}
+
+// NextAuth Account model - Required for OAuth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
 }
 
 model Product {
@@ -221,22 +246,27 @@ model Settings {
   @@map("settings")
 }
 
-// Session management for "logout all devices"
+// NextAuth Session model - Required for session management
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  userAgent String?
-  ipAddress String?
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
   
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@index([userId])
-  @@index([token])
-  @@index([expiresAt])
   @@map("sessions")
+}
+
+// NextAuth VerificationToken model - Required for passwordless login
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 // Order status history for timeline

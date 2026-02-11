@@ -41,6 +41,7 @@ if (typeof window === "undefined") {
 
 export const authOptions: NextAuthOptions = {
   // Use Prisma adapter for database integration
+  // Note: When using adapter with OAuth, we still use JWT for sessions
   adapter: PrismaAdapter(prisma),
 
   // Configure JWT session strategy
@@ -50,18 +51,18 @@ export const authOptions: NextAuthOptions = {
     updateAge: 24 * 60 * 60, // Update token daily
   },
 
-  // JWT configuration
-  jwt: {
-    secret: process.env.NEXTAUTH_SECRET,
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-  },
-
   // Providers: Google OAuth + Email/Password
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      allowDangerousEmailAccountLinking: false,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -151,30 +152,41 @@ export const authOptions: NextAuthOptions = {
       return baseUrl + "/dashboard";
     },
 
-    // Sign in callback - prevent duplicate accounts
-    async signIn({ user, profile, account }) {
-      // For Google OAuth provider
-      if (account?.provider === "google") {
-        // Block sign up if email is different from Google email
-        if (user.email !== profile?.email) {
-          return false;
+    // Sign in callback - handle OAuth and Credentials
+    async signIn({ user, account, profile }) {
+      try {
+        // For Google OAuth provider
+        if (account?.provider === "google") {
+          if (!user.email) {
+            console.error("[AUTH] No email provided by Google");
+            return false;
+          }
+
+          // Check if user already exists with password authentication
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+            include: { accounts: true }, // Include OAuth accounts
+          });
+
+          // If user exists with a password (email/password auth) but no OAuth accounts, prevent OAuth sign-in
+          if (existingUser && existingUser.password && existingUser.accounts.length === 0) {
+            console.error(
+              "[AUTH] Email already registered with password. Please use email/password login.",
+            );
+            return "/error?error=OAuthAccountNotLinked";
+          }
+
+          // Allow sign-in for new users or existing OAuth users
+          console.log(`[AUTH] Google OAuth sign-in successful for ${user.email}`);
+          return true;
         }
 
-        // Check if user already exists with this provider
-        const existingUser = await prisma.user.findFirst({
-          where: {
-            email: user.email,
-          },
-        });
-
-        // If user exists but with different provider, prevent sign-in
-        if (existingUser && existingUser.provider !== "google") {
-          return false;
-        }
+        // For Credentials provider, validation is done in authorize
+        return true;
+      } catch (error) {
+        console.error("[AUTH] Sign-in callback error:", error);
+        return false;
       }
-
-      // For Credentials provider, just allow it (validation done in authorize)
-      return true;
     },
   },
 
