@@ -41,7 +41,10 @@ const ShoppingPlatforms = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const indices = Array.from({ length: platforms.length }, (_, i) => i);
+            const indices = Array.from(
+              { length: platforms.length },
+              (_, i) => i,
+            );
             setAnimateIndices(indices);
             observer.unobserve(entry.target);
           }
@@ -49,7 +52,7 @@ const ShoppingPlatforms = () => {
       },
       {
         threshold: 0.1,
-      }
+      },
     );
 
     if (sectionRef.current) {
@@ -101,7 +104,8 @@ const ShoppingPlatforms = () => {
               className="text-2xl text-gray-700 max-w-3xl mx-auto opacity-0 animate-fade-in-down font-light"
               style={{ animationDelay: "0.2s" }}
             >
-              Shop on your favorite platforms with trusted sellers and fast delivery
+              Shop on your favorite platforms with trusted sellers and fast
+              delivery
             </p>
           </div>
 

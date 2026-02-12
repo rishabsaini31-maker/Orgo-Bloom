@@ -105,7 +105,10 @@ export default function HeroImages() {
   };
 
   return (
-    <section ref={sectionRef} className="py-32 bg-gradient-to-b from-white via-green-50 to-white relative overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="py-32 bg-gradient-to-b from-white via-green-50 to-white relative overflow-hidden"
+    >
       {/* Decorative Background Elements */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-green-100/30 rounded-full blur-3xl -mr-36 -mt-36"></div>
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary-100/30 rounded-full blur-3xl -ml-36 -mb-36"></div>
@@ -116,23 +119,28 @@ export default function HeroImages() {
           <div className="text-center mb-24">
             <div className="inline-flex items-center gap-3 mb-8 bg-gradient-to-r from-green-100 to-primary-100 px-6 py-3 rounded-full border border-green-200">
               <span className="text-3xl animate-bounce">🌱</span>
-              <span className="text-base font-bold bg-gradient-to-r from-green-700 to-primary-700 bg-clip-text text-transparent">Why Orgobloom?</span>
+              <span className="text-base font-bold bg-gradient-to-r from-green-700 to-primary-700 bg-clip-text text-transparent">
+                Why Orgobloom?
+              </span>
             </div>
-            
+
             <h2
               className="text-6xl md:text-7xl font-black mb-6 text-gray-900 opacity-0 animate-fade-in-down leading-tight tracking-tight"
               style={{ animationDelay: "0.1s" }}
             >
               Grow Organic,
               <br />
-              <span className="bg-gradient-to-r from-green-600 via-primary-600 to-green-600 bg-clip-text text-transparent">Grow Better</span>
+              <span className="bg-gradient-to-r from-green-600 via-primary-600 to-green-600 bg-clip-text text-transparent">
+                Grow Better
+              </span>
             </h2>
-            
+
             <p
               className="text-2xl text-gray-700 max-w-3xl mx-auto opacity-0 animate-fade-in-down font-light"
               style={{ animationDelay: "0.2s" }}
             >
-              Organic fertilizers that nourish soil, grow plants, and protect the planet
+              Organic fertilizers that nourish soil, grow plants, and protect
+              the planet
             </p>
           </div>
 
@@ -214,8 +222,18 @@ export default function HeroImages() {
               className="inline-flex items-center gap-3 bg-gradient-to-r from-green-600 via-primary-600 to-green-600 hover:from-green-700 hover:via-primary-700 hover:to-green-700 text-white px-10 py-5 rounded-full font-black text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-110 border-2 border-white/20 hover:border-white/50 group"
             >
               <span>Shop Conveniently</span>
-              <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              <svg
+                className="w-6 h-6 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
               </svg>
             </a>
           </div>

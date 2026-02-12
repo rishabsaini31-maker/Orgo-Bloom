@@ -144,6 +144,14 @@ export const notificationApi = {
   markAsRead: (id: string) => apiClient.patch(`/api/notifications/${id}`),
   delete: (id: string) => apiClient.delete(`/api/notifications/${id}`),
   markAllAsRead: () => apiClient.post("/api/notifications/mark-all-read"),
+  sendShippingNotification: (data: {
+    orderId: string;
+    trackingNumber: string;
+    courierName: string;
+    estimatedDelivery: string;
+  }) => apiClient.post("/api/notifications/shipping", data),
+  sendRefundNotification: (data: { refundId: string }) =>
+    apiClient.post("/api/notifications/refund", data),
 };
 
 // Recently Viewed APIs
@@ -175,6 +183,22 @@ export const helpArticleApi = {
   update: (slug: string, data: any) =>
     apiClient.patch(`/api/help-articles/${slug}`, data),
   delete: (slug: string) => apiClient.delete(`/api/help-articles/${slug}`),
+};
+
+// Shipping APIs
+export const shippingApi = {
+  calculateShipping: (data: any) =>
+    apiClient.post("/api/shipping/calculate", data),
+  getShippingZones: () => apiClient.get("/api/shipping/calculate"),
+};
+
+// Returns/Refunds APIs
+export const returnsApi = {
+  create: (data: any) => apiClient.post("/api/returns", data),
+  getAll: (params?: any) => apiClient.get("/api/returns", { params }),
+  updateStatus: (refundId: string, data: any) =>
+    apiClient.patch(`/api/returns/${refundId}`, data),
+  getById: (refundId: string) => apiClient.get(`/api/returns/${refundId}`),
 };
 
 export default apiClient;

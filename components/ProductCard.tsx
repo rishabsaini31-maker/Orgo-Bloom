@@ -109,10 +109,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                 src={currentImage}
                 alt={product.name}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="relative inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
                   console.error(`Failed to load image: ${currentImage}`);
-                  e.currentTarget.src = "/placeholder-product.jpg";
+                  e.currentTarget.src = "/placeholder-product.svg";
                 }}
               />
               {/* Favorite Button */}

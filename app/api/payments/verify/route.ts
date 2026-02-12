@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { authenticateRequest } from "@/lib/auth";
 import { handleApiError, successResponse, ApiError } from "@/lib/api-utils";
+import { sendEmail, generateOrderConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,6 +67,14 @@ export async function POST(request: NextRequest) {
     // Update product stock
     const orderItems = await prisma.orderItem.findMany({
       where: { orderId: payment.orderId },
+      include: {
+        product: {
+          select: {
+            name: true,
+            weight: true,
+          },
+        },
+      },
     });
 
     for (const item of orderItems) {
@@ -77,6 +86,36 @@ export async function POST(request: NextRequest) {
           },
         },
       });
+    }
+
+    // Send order confirmation email
+    try {
+      const order = await prisma.order.findUnique({
+        where: { id: payment.orderId },
+        include: {
+          user: {
+            select: { name: true, email: true },
+          },
+        },
+      });
+
+      if (order && order.user.email) {
+        const emailHtml = generateOrderConfirmationEmail(
+          order.user.name || "Customer",
+          order.orderNumber,
+          order.total,
+          orderItems,
+        );
+
+        await sendEmail({
+          to: order.user.email,
+          subject: `Order Confirmation - Order #${order.orderNumber}`,
+          html: emailHtml,
+        });
+      }
+    } catch (emailError) {
+      console.error("Failed to send order confirmation email:", emailError);
+      // Don't throw error if email fails, order is still completed
     }
 
     return successResponse({

@@ -1,0 +1,12 @@
+<svg width="500" height="500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="500" fill="#4ade80"/>
+  <text x="250" y="200" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white" text-anchor="middle">
+    Organic
+  </text>
+  <text x="250" y="260" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white" text-anchor="middle">
+    Fertilizer
+  </text>
+  <text x="250" y="320" font-family="Arial, sans-serif" font-size="32" fill="white" text-anchor="middle" opacity="0.8">
+    Product Image
+  </text>
+</svg>
