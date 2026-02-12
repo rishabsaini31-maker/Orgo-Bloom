@@ -107,12 +107,29 @@ export default function CartPage() {
                     <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
                       <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                         {item.imageUrl ? (
-                          <Image
-                            src={item.imageUrl}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                          />
+                          item.imageUrl.startsWith("/uploads/") ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={item.imageUrl}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "/placeholder-product.svg";
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              src={item.imageUrl}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "/placeholder-product.svg";
+                              }}
+                            />
+                          )
                         ) : (
                           <div className="flex items-center justify-center h-full text-gray-400 text-xs">
                             No Image

@@ -194,21 +194,38 @@ export default function WishlistPage() {
                   {/* Product Image */}
                   <div className="relative h-48 bg-gray-100">
                     {imageUrl ? (
-                      <Image
-                        src={imageUrl}
-                        alt={product.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover"
-                        onError={(e) => {
-                          console.log(
-                            "Image load error for:",
-                            product.name,
-                            imageUrl,
-                          );
-                          e.currentTarget.src = "/placeholder-product.svg";
-                        }}
-                      />
+                      imageUrl.startsWith("/uploads/") ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={imageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            console.log(
+                              "Image load error for:",
+                              product.name,
+                              imageUrl,
+                            );
+                            e.currentTarget.src = "/placeholder-product.svg";
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          src={imageUrl}
+                          alt={product.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover"
+                          onError={(e) => {
+                            console.log(
+                              "Image load error for:",
+                              product.name,
+                              imageUrl,
+                            );
+                            e.currentTarget.src = "/placeholder-product.svg";
+                          }}
+                        />
+                      )
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200">
                         <span className="text-gray-400">No image</span>
