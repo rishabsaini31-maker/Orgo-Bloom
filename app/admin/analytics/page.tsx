@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -51,18 +51,7 @@ export default function AdminAnalyticsPage() {
   const [period, setPeriod] = useState("30");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/admin/login");
-      return;
-    }
-
-    if (status === "authenticated") {
-      fetchAnalytics();
-    }
-  }, [status, period, router]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -88,7 +77,18 @@ export default function AdminAnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [period]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/admin/login");
+      return;
+    }
+
+    if (status === "authenticated") {
+      fetchAnalytics();
+    }
+  }, [status, period, router, fetchAnalytics]);
 
   if (status === "loading" || loading) {
     return (
