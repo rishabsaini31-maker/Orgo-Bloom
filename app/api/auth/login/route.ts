@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { handleApiError, ApiError } from "@/lib/api-utils";
 import { z } from "zod";
 
@@ -42,6 +42,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate JWT token
+    const signOptions: SignOptions = {
+      expiresIn: JWT_EXPIRES_IN,
+    };
+    
     const token = jwt.sign(
       {
         userId: user.id,
@@ -49,7 +53,7 @@ export async function POST(request: NextRequest) {
         role: user.role,
       },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN },
+      signOptions,
     );
 
     return Response.json({
