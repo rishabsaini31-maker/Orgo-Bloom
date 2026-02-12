@@ -41,24 +41,29 @@ export default function WishlistPage() {
           return;
         }
 
-        // Fetch product details for all favorites
-        const productDetails = await Promise.all(
+        // Fetch product details for all favorites with proper mapping
+        const productDetailsWithIds = await Promise.all(
           favorites.map((fav) => {
             console.log("Fetching product:", fav.productId);
-            return productApi.getById(fav.productId).catch((err) => {
-              console.error("Failed to fetch product:", fav.productId, err);
-              return null;
-            });
+            return productApi.getById(fav.productId)
+              .then((response) => ({ 
+                productId: fav.productId, 
+                data: response,
+                favoriteItem: fav 
+              }))
+              .catch((err) => {
+                console.error("Failed to fetch product:", fav.productId, err);
+                return null;
+              });
           }),
         );
 
-        console.log("Raw API responses:", productDetails);
+        console.log("Raw API responses:", productDetailsWithIds);
 
-        const validProducts = productDetails
+        const validProducts = productDetailsWithIds
           .filter((p) => p !== null)
-          .map((response, index) => {
+          .map(({ data: response, favoriteItem, productId }) => {
             const product = response.data?.product || response.data;
-            const favoriteItem = favorites[index];
 
             // Use imageUrl from favorites store if product API doesn't have it
             if (
