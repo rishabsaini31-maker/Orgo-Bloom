@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { orderApi } from "@/lib/api-client";
 import { formatPrice, formatDate } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -119,44 +120,114 @@ export default function DashboardPage() {
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
               </div>
             ) : orders.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {orders.map((order) => (
                   <div
                     key={order.id}
-                    className="border rounded-lg p-4 hover:shadow-md transition"
+                    className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-lg transition-all"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="font-semibold text-lg">
+                    {/* Order Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <p className="font-bold text-lg text-gray-900">
                           Order #{order.orderNumber}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-500">
                           {formatDate(order.createdAt)}
                         </p>
                       </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}
+                        className={`px-3 py-1 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap ml-2 ${getStatusColor(order.status)}`}
                       >
                         {order.status}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    {/* Order Details Grid */}
+                    <div className="grid grid-cols-2 gap-4 mb-4 py-4 border-t border-b border-gray-100">
                       <div>
-                        <p className="text-sm text-gray-600">
-                          {order.items.length} item(s)
+                        <p className="text-xs text-gray-600 font-medium">Items</p>
+                        <p className="text-lg font-semibold text-gray-900">
+                          {order.items.length}
                         </p>
-                        <p className="font-bold text-lg text-primary-600">
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 font-medium">Total</p>
+                        <p className="text-lg font-semibold text-primary-600">
                           {formatPrice(order.total)}
                         </p>
                       </div>
+                      <div>
+                        <p className="text-xs text-gray-600 font-medium">Shipping</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {formatPrice(order.shippingCost || 0)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 font-medium">Quantity</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {order.items.reduce((sum: number, item: any) => sum + item.quantity, 0)} units
+                        </p>
+                      </div>
+                    </div>
 
+                    {/* Shipping Address Preview */}
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-600 font-medium mb-1">
+                        Shipping to
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900 line-clamp-1">
+                        {order.shippingAddress.fullName}
+                      </p>
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        {order.shippingAddress.city}, {order.shippingAddress.state}
+                      </p>
+                    </div>
+
+                    {/* Tracking Info */}
+                    {order.trackingNumber && order.status === "SHIPPED" && (
+                      <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <p className="text-xs text-blue-600 font-medium mb-1">
+                          📦 Tracking Number
+                        </p>
+                        <p className="text-sm font-mono font-semibold text-blue-700">
+                          {order.trackingNumber}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
                       <Link
                         href={`/dashboard/orders/${order.id}`}
-                        className="btn btn-outline text-sm"
+                        className="btn btn-primary text-xs sm:text-sm py-2 px-4 flex-1"
                       >
-                        View Details
+                        Track Order
                       </Link>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            `Order #${order.orderNumber}`
+                          );
+                          toast.success("Order ID copied!");
+                        }}
+                        className="btn btn-outline text-xs sm:text-sm py-2 px-3"
+                        title="Copy Order ID"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))}

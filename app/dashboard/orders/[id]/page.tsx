@@ -168,27 +168,176 @@ export default function OrderDetailsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Order Status */}
+              {/* Order Status Timeline */}
               <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold">Order Status</h2>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold">Order Timeline</h2>
                   <span
                     className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}
                   >
                     {order.status}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600">
-                  Placed on {formatDate(order.createdAt)}
-                </p>
-                {order.trackingNumber && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-gray-600">Tracking Number</p>
-                    <p className="font-mono text-lg font-semibold text-blue-600">
-                      {order.trackingNumber}
-                    </p>
+
+                {/* Timeline */}
+                <div className="space-y-4">
+                  {/* Order Placed */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-green-600"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="w-1 h-16 bg-gray-300"></div>
+                    </div>
+                    <div className="pt-2">
+                      <p className="font-semibold text-green-700">Order Placed</p>
+                      <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+                    </div>
                   </div>
-                )}
+
+                  {/* Processing */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          ["PROCESSING", "CONFIRMED", "SHIPPED", "DELIVERED"].includes(order.status)
+                            ? "bg-green-100"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {["PROCESSING", "CONFIRMED", "SHIPPED", "DELIVERED"].includes(order.status) ? (
+                          <svg
+                            className="w-5 h-5 text-green-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            />
+                          </svg>
+                        ) : (
+                          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="w-1 h-16 bg-gray-300"></div>
+                    </div>
+                    <div className="pt-2">
+                      <p className="font-semibold">Processing</p>
+                      <p className="text-sm text-gray-600">We are preparing your order</p>
+                    </div>
+                  </div>
+
+                  {/* Confirmed */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          ["CONFIRMED", "SHIPPED", "DELIVERED"].includes(order.status)
+                            ? "bg-green-100"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {["CONFIRMED", "SHIPPED", "DELIVERED"].includes(order.status) ? (
+                          <svg
+                            className="w-5 h-5 text-green-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            />
+                          </svg>
+                        ) : (
+                          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="w-1 h-16 bg-gray-300"></div>
+                    </div>
+                    <div className="pt-2">
+                      <p className="font-semibold">Order Confirmed</p>
+                      <p className="text-sm text-gray-600">Payment verified</p>
+                    </div>
+                  </div>
+
+                  {/* Shipped */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          ["SHIPPED", "DELIVERED"].includes(order.status)
+                            ? "bg-green-100"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {["SHIPPED", "DELIVERED"].includes(order.status) ? (
+                          <svg
+                            className="w-5 h-5 text-green-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            />
+                          </svg>
+                        ) : (
+                          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="w-1 h-16 bg-gray-300"></div>
+                    </div>
+                    <div className="pt-2">
+                      <p className="font-semibold">Shipped</p>
+                      <p className="text-sm text-gray-600">On the way to you</p>
+                      {order.trackingNumber && (
+                        <p className="text-xs text-blue-600 mt-1 font-mono">
+                          Track: {order.trackingNumber}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Delivered */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          order.status === "DELIVERED" ? "bg-green-100" : "bg-gray-200"
+                        }`}
+                      >
+                        {order.status === "DELIVERED" ? (
+                          <svg
+                            className="w-5 h-5 text-green-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            />
+                          </svg>
+                        ) : (
+                          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <p className="font-semibold">Delivered</p>
+                      <p className="text-sm text-gray-600">Package delivered</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Order Items */}

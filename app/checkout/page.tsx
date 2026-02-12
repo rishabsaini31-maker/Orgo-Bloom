@@ -25,7 +25,9 @@ export default function CheckoutPage() {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"UPI" | "COD">("UPI");
   const [loading, setLoading] = useState(false);
-  const [selectedShipping, setSelectedShipping] = useState<"economy" | "standard" | "express">("economy");
+  const [selectedShipping, setSelectedShipping] = useState<
+    "economy" | "standard" | "express"
+  >("economy");
   const [shippingCost, setShippingCost] = useState(0);
   const [formData, setFormData] = useState({
     fullName: user?.name || "",
@@ -503,7 +505,10 @@ export default function CheckoutPage() {
                             checked={selectedShipping === "economy"}
                             onChange={(e) =>
                               setSelectedShipping(
-                                e.target.value as "economy" | "standard" | "express"
+                                e.target.value as
+                                  | "economy"
+                                  | "standard"
+                                  | "express",
                               )
                             }
                             className="mt-1 flex-shrink-0"

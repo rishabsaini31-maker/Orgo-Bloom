@@ -92,7 +92,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-white rounded-xl shadow-elegant hover:shadow-elegant-lg transition-all duration-300 overflow-hidden group border border-gray-100 hover:border-primary-200">
       <Link href={`/products/${product.slug}`}>
-        <div className="relative h-56 bg-gradient-to-br from-gray-200 to-gray-100 overflow-hidden group/image">
+        <div className="relative h-40 sm:h-48 md:h-56 bg-gradient-to-br from-gray-200 to-gray-100 overflow-hidden group/image">
           {currentImage ? (
             <>
               {/* Blurred Background Image */}
