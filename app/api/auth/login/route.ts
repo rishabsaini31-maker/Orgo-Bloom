@@ -11,7 +11,8 @@ const loginSchema = z.object({
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
+// expiresIn: 7 days in seconds = 604800
+const JWT_EXPIRES_IN = 7 * 24 * 60 * 60;
 
 export async function POST(request: NextRequest) {
   try {
