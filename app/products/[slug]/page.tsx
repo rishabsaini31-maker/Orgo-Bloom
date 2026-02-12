@@ -170,35 +170,37 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
                 <>
-                  {/* Main Large Image - Always First Image */}
+                  {/* Main Large Image - Shows Selected Image */}
                   <button
-                    onClick={() => setSelectedImageIndex(0)}
-                    className={`relative w-full h-80 lg:h-96 bg-gray-100 rounded-lg overflow-hidden group transition-all flex items-center justify-center ${
-                      selectedImageIndex === 0
-                        ? "ring-4 ring-primary-600"
-                        : "hover:ring-2 hover:ring-gray-300"
-                    }`}
+                    onClick={() => setSelectedImageIndex(selectedImageIndex)}
+                    className={`relative w-full h-80 lg:h-96 bg-gray-100 rounded-lg overflow-hidden group transition-all flex items-center justify-center ring-4 ring-primary-600`}
                   >
                     {/* Blurred Background Image */}
-                    <Image
-                      src={allImages[0]}
-                      alt={`${product.name} background`}
-                      fill
-                      className="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40"
-                      priority
-                    />
+                    {currentImage && (
+                      <Image
+                        src={currentImage}
+                        alt={`${product.name} background`}
+                        fill
+                        className="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40"
+                        priority
+                      />
+                    )}
 
                     {/* Main Product Image */}
-                    <Image
-                      src={allImages[0]}
-                      alt={product.name}
-                      fill
-                      className="relative w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                      onError={(e) => {
-                        console.error(`Failed to load image: ${allImages[0]}`);
-                        e.currentTarget.src = "/placeholder-product.jpg";
-                      }}
-                    />
+                    {currentImage && (
+                      <Image
+                        src={currentImage}
+                        alt={product.name}
+                        fill
+                        className="relative w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                        onError={(e) => {
+                          console.error(
+                            `Failed to load image: ${currentImage}`,
+                          );
+                          e.currentTarget.src = "/placeholder-product.jpg";
+                        }}
+                      />
+                    )}
                     {/* 30% OFF Badge */}
                     <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg text-lg font-bold shadow-lg z-10">
                       {discountPercentage}% OFF
