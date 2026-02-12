@@ -95,27 +95,50 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative h-40 sm:h-48 md:h-56 bg-gradient-to-br from-gray-200 to-gray-100 overflow-hidden group/image">
           {currentImage ? (
             <>
-              {/* Blurred Background Image */}
-              <Image
-                src={currentImage}
-                alt={`${product.name} background`}
-                fill
-                className="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40"
-                priority
-              />
-
-              {/* Main Product Image */}
-              <Image
-                src={currentImage}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="relative inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  console.error(`Failed to load image: ${currentImage}`);
-                  e.currentTarget.src = "/placeholder-product.svg";
-                }}
-              />
+              {/* Check if it's a local upload or external URL */}
+              {currentImage.startsWith("/uploads/") ? (
+                <>
+                  {/* For local uploaded files - use regular img tag */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={currentImage}
+                    alt={`${product.name} background`}
+                    className="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40"
+                  />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={currentImage}
+                    alt={product.name}
+                    className="relative inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      console.error(`Failed to load image: ${currentImage}`);
+                      e.currentTarget.src = "/placeholder-product.svg";
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* For external URLs - use Next.js Image for optimization */}
+                  <Image
+                    src={currentImage}
+                    alt={`${product.name} background`}
+                    fill
+                    className="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40"
+                    priority
+                  />
+                  <Image
+                    src={currentImage}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="relative inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      console.error(`Failed to load image: ${currentImage}`);
+                      e.currentTarget.src = "/placeholder-product.svg";
+                    }}
+                  />
+                </>
+              )}
               {/* Favorite Button */}
               <button
                 type="button"
