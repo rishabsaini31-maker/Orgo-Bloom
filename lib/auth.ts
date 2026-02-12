@@ -22,7 +22,6 @@ function validateEnv() {
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "NEXTAUTH_SECRET",
-    "NEXTAUTH_URL",
   ];
 
   const missing = required.filter((env) => !process.env[env]);
@@ -30,6 +29,13 @@ function validateEnv() {
   if (missing.length > 0) {
     throw new Error(
       `Missing required environment variables: ${missing.join(", ")}`,
+    );
+  }
+
+  // NEXTAUTH_URL is optional - NextAuth will use default if not set
+  if (!process.env.NEXTAUTH_URL) {
+    console.warn(
+      "[AUTH] NEXTAUTH_URL not set. NextAuth will use origin from request headers.",
     );
   }
 }

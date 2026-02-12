@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const signOptions: SignOptions = {
       expiresIn: JWT_EXPIRES_IN,
     };
-    
+
     const token = jwt.sign(
       {
         userId: user.id,
