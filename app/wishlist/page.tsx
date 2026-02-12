@@ -45,11 +45,12 @@ export default function WishlistPage() {
         const productDetailsWithIds = await Promise.all(
           favorites.map((fav) => {
             console.log("Fetching product:", fav.productId);
-            return productApi.getById(fav.productId)
-              .then((response) => ({ 
-                productId: fav.productId, 
+            return productApi
+              .getById(fav.productId)
+              .then((response) => ({
+                productId: fav.productId,
                 data: response,
-                favoriteItem: fav 
+                favoriteItem: fav,
               }))
               .catch((err) => {
                 console.error("Failed to fetch product:", fav.productId, err);
@@ -178,17 +179,19 @@ export default function WishlistPage() {
                 product.images?.[0] ||
                 favoriteItem?.imageUrl;
 
+              // Determine if it's a local upload
+              const isLocalUpload = imageUrl && (
+                imageUrl.startsWith("/uploads/") ||
+                imageUrl.includes("/uploads/")
+              );
+
               console.log(
                 "Rendering product:",
                 product.name,
-                "product.imageUrl:",
-                product.imageUrl,
-                "product.images:",
-                product.images,
-                "favoriteItem.imageUrl:",
-                favoriteItem?.imageUrl,
-                "final imageUrl:",
+                "imageUrl:",
                 imageUrl,
+                "isLocalUpload:",
+                isLocalUpload,
               );
 
               return (
@@ -199,7 +202,7 @@ export default function WishlistPage() {
                   {/* Product Image */}
                   <div className="relative h-48 bg-gray-100">
                     {imageUrl ? (
-                      imageUrl.startsWith("/uploads/") ? (
+                      isLocalUpload ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={imageUrl}
