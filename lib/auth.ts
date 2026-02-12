@@ -34,10 +34,8 @@ function validateEnv() {
   }
 }
 
-// Validate on server startup
-if (typeof window === "undefined") {
-  validateEnv();
-}
+// Note: Validation moved to authenticateRequest() to avoid build-time failures
+// Environment validation now happens only at request time, not during build
 
 export const authOptions: NextAuthOptions = {
   // Use Prisma adapter for database integration
@@ -307,6 +305,9 @@ export interface LegacyTokenPayload {
 export async function authenticateRequest(
   request: NextRequest,
 ): Promise<LegacyTokenPayload | null> {
+  // Validate environment variables at request time, not build time
+  validateEnv();
+
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
