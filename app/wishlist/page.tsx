@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useFavoritesStore } from "@/store/favorites-store";
 import { useCartStore } from "@/store/cart-store";
 import { productApi } from "@/lib/api-client";
@@ -179,19 +178,11 @@ export default function WishlistPage() {
                 product.images?.[0] ||
                 favoriteItem?.imageUrl;
 
-              // Determine if it's a local upload
-              const isLocalUpload = imageUrl && (
-                imageUrl.startsWith("/uploads/") ||
-                imageUrl.includes("/uploads/")
-              );
-
               console.log(
                 "Rendering product:",
                 product.name,
                 "imageUrl:",
                 imageUrl,
-                "isLocalUpload:",
-                isLocalUpload,
               );
 
               return (
@@ -202,38 +193,21 @@ export default function WishlistPage() {
                   {/* Product Image */}
                   <div className="relative h-48 bg-gray-100">
                     {imageUrl ? (
-                      isLocalUpload ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            console.log(
-                              "Image load error for:",
-                              product.name,
-                              imageUrl,
-                            );
-                            e.currentTarget.src = "/placeholder-product.svg";
-                          }}
-                        />
-                      ) : (
-                        <Image
-                          src={imageUrl}
-                          alt={product.name}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover"
-                          onError={(e) => {
-                            console.log(
-                              "Image load error for:",
-                              product.name,
-                              imageUrl,
-                            );
-                            e.currentTarget.src = "/placeholder-product.svg";
-                          }}
-                        />
-                      )
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.log(
+                            "Image load error for:",
+                            product.name,
+                            imageUrl,
+                            "- using placeholder"
+                          );
+                          e.currentTarget.src = "/placeholder-product.svg";
+                        }}
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200">
                         <span className="text-gray-400">No image</span>
