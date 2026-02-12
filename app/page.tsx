@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import VideoPlayer from "@/components/VideoPlayer";
+import ShoppingPlatforms from "@/components/ShoppingPlatforms";
 
 // Disable caching to always show fresh videos
 export const dynamic = "force-dynamic";
@@ -537,65 +538,7 @@ export default async function HomePage() {
         </section>
 
         {/* Shop on Platforms Section */}
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-2 text-gray-900">
-                  Shop Conveniently
-                </h2>
-                <p className="text-gray-600">
-                  Available on major e-commerce platforms across India
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* Amazon */}
-                <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
-                  <div className="text-center mb-4">
-                    <div className="mb-4 text-4xl">📦</div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      {" "}
-                      Amazon India
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Shop with Prime eligibility for fast delivery
-                    </p>
-                  </div>
-                  <a
-                    href="https://amazon.in"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full text-center bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition font-medium text-sm"
-                  >
-                    Visit Store →
-                  </a>
-                </div>
-
-                {/* Flipkart */}
-                <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition">
-                  <div className="text-center mb-4">
-                    <div className="mb-4 text-4xl">🛒</div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      Flipkart
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Assured quality with Flipkart Plus benefits
-                    </p>
-                  </div>
-                  <a
-                    href="https://flipkart.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition font-medium text-sm"
-                  >
-                    Visit Store →
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <ShoppingPlatforms />
 
         {/* Testimonials Section */}
         <section className="py-16 bg-gradient-to-b from-gray-50 to-white">

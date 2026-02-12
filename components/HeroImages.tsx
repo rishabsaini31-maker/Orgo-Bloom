@@ -105,78 +105,119 @@ export default function HeroImages() {
   };
 
   return (
-    <section ref={sectionRef} className="py-20 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2
-            className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 text-center opacity-0 animate-fade-in-down"
-            style={{ animationDelay: "0.1s" }}
-          >
-            Our Products & Impact
-          </h2>
-          <p
-            className="text-lg md:text-xl text-gray-600 text-center mb-16 opacity-0 animate-fade-in-down"
-            style={{ animationDelay: "0.2s" }}
-          >
-            Experience the transformation with Orgobloom organic fertilizers
-          </p>
+    <section ref={sectionRef} className="py-32 bg-gradient-to-b from-white via-green-50 to-white relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 right-0 w-72 h-72 bg-green-100/30 rounded-full blur-3xl -mr-36 -mt-36"></div>
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary-100/30 rounded-full blur-3xl -ml-36 -mb-36"></div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-24">
+            <div className="inline-flex items-center gap-3 mb-8 bg-gradient-to-r from-green-100 to-primary-100 px-6 py-3 rounded-full border border-green-200">
+              <span className="text-3xl animate-bounce">🌱</span>
+              <span className="text-base font-bold bg-gradient-to-r from-green-700 to-primary-700 bg-clip-text text-transparent">Why Orgobloom?</span>
+            </div>
+            
+            <h2
+              className="text-6xl md:text-7xl font-black mb-6 text-gray-900 opacity-0 animate-fade-in-down leading-tight tracking-tight"
+              style={{ animationDelay: "0.1s" }}
+            >
+              Grow Organic,
+              <br />
+              <span className="bg-gradient-to-r from-green-600 via-primary-600 to-green-600 bg-clip-text text-transparent">Grow Better</span>
+            </h2>
+            
+            <p
+              className="text-2xl text-gray-700 max-w-3xl mx-auto opacity-0 animate-fade-in-down font-light"
+              style={{ animationDelay: "0.2s" }}
+            >
+              Organic fertilizers that nourish soil, grow plants, and protect the planet
+            </p>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             {images.map((image, index) => (
               <div
                 key={image.id}
                 ref={(el) => {
                   itemRefs.current[index] = el;
                 }}
-                className={`relative h-48 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer group transform hover:scale-105 ${getAnimationClass(index)}`}
+                className={`group relative overflow-hidden rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 cursor-pointer border-2 border-white/50 hover:border-green-300 transform ${getAnimationClass(index)}`}
                 style={{
                   transitionDelay: animateIndices.includes(index)
                     ? `${index * 0.1}s`
                     : "0s",
                 }}
               >
-                {/* Background with Gradient */}
+                {/* Gradient Background */}
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${image.color || "from-primary-400 to-primary-600"}`}
+                  className={`absolute inset-0 bg-gradient-to-br ${image.color || "from-green-500 to-green-700"} opacity-95 group-hover:opacity-100 transition-all duration-500`}
                 ></div>
 
-                {/* Image Overlay (if image available, show it; otherwise show icon) */}
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300"></div>
+                {/* Animated Overlay Pattern */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-[radial-gradient(circle_at_20%_50%,white,transparent_50%)]"></div>
 
-                {/* Content */}
-                <div className="relative h-full flex flex-col items-center justify-center text-center text-white p-4 group-hover:scale-105 transition-transform duration-300">
-                  <svg
-                    className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform duration-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d={getIconPath(
-                        image.color
-                          ? image.id % 4 === 0
-                            ? "eye"
-                            : image.id % 4 === 1
-                              ? "leaf"
-                              : image.id % 4 === 2
-                                ? "coin"
-                                : "globe"
-                          : "eye",
-                      )}
-                    />
-                  </svg>
-                  <h3 className="font-bold text-lg mb-1 group-hover:translate-y-1 transition-transform duration-300">
+                {/* Shine Effect */}
+                <div className="absolute -inset-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:translate-x-full transition-transform duration-700"></div>
+
+                {/* Content Container */}
+                <div className="relative h-72 flex flex-col items-center justify-center text-center text-white p-8 z-10">
+                  {/* Icon Container - Much Larger */}
+                  <div className="mb-6 p-6 bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 group-hover:scale-125 transition-transform duration-500 group-hover:bg-white/30">
+                    <svg
+                      className="w-16 h-16"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d={getIconPath(
+                          image.color
+                            ? image.id % 4 === 0
+                              ? "eye"
+                              : image.id % 4 === 1
+                                ? "leaf"
+                                : image.id % 4 === 2
+                                  ? "coin"
+                                  : "globe"
+                            : "eye",
+                        )}
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Title - Larger and Bolder */}
+                  <h3 className="font-black text-3xl mb-3 transition-transform duration-300 group-hover:translate-y-0 transform leading-tight">
                     {image.title}
                   </h3>
-                  <p className="text-sm opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+
+                  {/* Description - Better Spacing */}
+                  <p className="text-lg opacity-95 group-hover:opacity-100 transition-opacity duration-300 leading-relaxed font-medium">
                     {image.description}
                   </p>
+
+                  {/* Bottom accent line */}
+                  <div className="mt-6 h-1 w-12 bg-white/40 group-hover:w-16 group-hover:bg-white transition-all duration-300 rounded-full"></div>
                 </div>
+
+                {/* Bottom shine accent */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
             ))}
+          </div>
+
+          {/* CTA Button - More Prominent */}
+          <div className="text-center">
+            <a
+              href="/products"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-green-600 via-primary-600 to-green-600 hover:from-green-700 hover:via-primary-700 hover:to-green-700 text-white px-10 py-5 rounded-full font-black text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-110 border-2 border-white/20 hover:border-white/50 group"
+            >
+              <span>Shop Conveniently</span>
+              <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
           </div>
         </div>
       </div>
