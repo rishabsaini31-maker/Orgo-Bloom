@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cart-store";
 import { useAuthStore } from "@/store/auth-store";
 import { formatPrice } from "@/lib/utils";
+import SafeImage from "@/components/SafeImage";
 import toast from "react-hot-toast";
 
 export default function CartPage() {
@@ -107,29 +107,11 @@ export default function CartPage() {
                     <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
                       <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                         {item.imageUrl ? (
-                          item.imageUrl.startsWith("/uploads/") ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
-                              src={item.imageUrl}
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src =
-                                  "/placeholder-product.svg";
-                              }}
-                            />
-                          ) : (
-                            <Image
-                              src={item.imageUrl}
-                              alt={item.name}
-                              fill
-                              className="object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src =
-                                  "/placeholder-product.svg";
-                              }}
-                            />
-                          )
+                          <SafeImage
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <div className="flex items-center justify-center h-full text-gray-400 text-xs">
                             No Image

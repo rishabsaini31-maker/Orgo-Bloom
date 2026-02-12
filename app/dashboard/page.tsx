@@ -146,27 +146,39 @@ export default function DashboardPage() {
                     {/* Order Details Grid */}
                     <div className="grid grid-cols-2 gap-4 mb-4 py-4 border-t border-b border-gray-100">
                       <div>
-                        <p className="text-xs text-gray-600 font-medium">Items</p>
+                        <p className="text-xs text-gray-600 font-medium">
+                          Items
+                        </p>
                         <p className="text-lg font-semibold text-gray-900">
                           {order.items.length}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-600 font-medium">Total</p>
+                        <p className="text-xs text-gray-600 font-medium">
+                          Total
+                        </p>
                         <p className="text-lg font-semibold text-primary-600">
                           {formatPrice(order.total)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-600 font-medium">Shipping</p>
+                        <p className="text-xs text-gray-600 font-medium">
+                          Shipping
+                        </p>
                         <p className="text-sm font-semibold text-gray-900">
                           {formatPrice(order.shippingCost || 0)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-600 font-medium">Quantity</p>
+                        <p className="text-xs text-gray-600 font-medium">
+                          Quantity
+                        </p>
                         <p className="text-sm font-semibold text-gray-900">
-                          {order.items.reduce((sum: number, item: any) => sum + item.quantity, 0)} units
+                          {order.items.reduce(
+                            (sum: number, item: any) => sum + item.quantity,
+                            0,
+                          )}{" "}
+                          units
                         </p>
                       </div>
                     </div>
@@ -180,7 +192,8 @@ export default function DashboardPage() {
                         {order.shippingAddress.fullName}
                       </p>
                       <p className="text-xs text-gray-600 line-clamp-2">
-                        {order.shippingAddress.city}, {order.shippingAddress.state}
+                        {order.shippingAddress.city},{" "}
+                        {order.shippingAddress.state}
                       </p>
                     </div>
 
@@ -207,7 +220,7 @@ export default function DashboardPage() {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(
-                            `Order #${order.orderNumber}`
+                            `Order #${order.orderNumber}`,
                           );
                           toast.success("Order ID copied!");
                         }}

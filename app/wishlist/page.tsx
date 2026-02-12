@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useFavoritesStore } from "@/store/favorites-store";
 import { useCartStore } from "@/store/cart-store";
 import { productApi } from "@/lib/api-client";
+import SafeImage from "@/components/SafeImage";
 
 interface WishlistProduct {
   id: string;
@@ -193,20 +194,10 @@ export default function WishlistPage() {
                   {/* Product Image */}
                   <div className="relative h-48 bg-gray-100">
                     {imageUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
+                      <SafeImage
                         src={imageUrl}
                         alt={product.name}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          console.log(
-                            "Image load error for:",
-                            product.name,
-                            imageUrl,
-                            "- using placeholder"
-                          );
-                          e.currentTarget.src = "/placeholder-product.svg";
-                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200">

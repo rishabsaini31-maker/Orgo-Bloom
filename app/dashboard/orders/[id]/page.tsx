@@ -199,8 +199,12 @@ export default function OrderDetailsPage() {
                       <div className="w-1 h-16 bg-gray-300"></div>
                     </div>
                     <div className="pt-2">
-                      <p className="font-semibold text-green-700">Order Placed</p>
-                      <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+                      <p className="font-semibold text-green-700">
+                        Order Placed
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {formatDate(order.createdAt)}
+                      </p>
                     </div>
                   </div>
 
@@ -209,12 +213,22 @@ export default function OrderDetailsPage() {
                     <div className="flex flex-col items-center">
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          ["PROCESSING", "CONFIRMED", "SHIPPED", "DELIVERED"].includes(order.status)
+                          [
+                            "PROCESSING",
+                            "CONFIRMED",
+                            "SHIPPED",
+                            "DELIVERED",
+                          ].includes(order.status)
                             ? "bg-green-100"
                             : "bg-gray-200"
                         }`}
                       >
-                        {["PROCESSING", "CONFIRMED", "SHIPPED", "DELIVERED"].includes(order.status) ? (
+                        {[
+                          "PROCESSING",
+                          "CONFIRMED",
+                          "SHIPPED",
+                          "DELIVERED",
+                        ].includes(order.status) ? (
                           <svg
                             className="w-5 h-5 text-green-600"
                             fill="currentColor"
@@ -233,7 +247,9 @@ export default function OrderDetailsPage() {
                     </div>
                     <div className="pt-2">
                       <p className="font-semibold">Processing</p>
-                      <p className="text-sm text-gray-600">We are preparing your order</p>
+                      <p className="text-sm text-gray-600">
+                        We are preparing your order
+                      </p>
                     </div>
                   </div>
 
@@ -242,12 +258,16 @@ export default function OrderDetailsPage() {
                     <div className="flex flex-col items-center">
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          ["CONFIRMED", "SHIPPED", "DELIVERED"].includes(order.status)
+                          ["CONFIRMED", "SHIPPED", "DELIVERED"].includes(
+                            order.status,
+                          )
                             ? "bg-green-100"
                             : "bg-gray-200"
                         }`}
                       >
-                        {["CONFIRMED", "SHIPPED", "DELIVERED"].includes(order.status) ? (
+                        {["CONFIRMED", "SHIPPED", "DELIVERED"].includes(
+                          order.status,
+                        ) ? (
                           <svg
                             className="w-5 h-5 text-green-600"
                             fill="currentColor"
@@ -313,7 +333,9 @@ export default function OrderDetailsPage() {
                     <div className="flex flex-col items-center">
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          order.status === "DELIVERED" ? "bg-green-100" : "bg-gray-200"
+                          order.status === "DELIVERED"
+                            ? "bg-green-100"
+                            : "bg-gray-200"
                         }`}
                       >
                         {order.status === "DELIVERED" ? (
