@@ -156,6 +156,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     setCurrentImageIndex(
                       currentImageIndex === 0
                         ? productImages.length - 1
@@ -174,6 +175,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     setCurrentImageIndex(
                       currentImageIndex === productImages.length - 1
                         ? 0
