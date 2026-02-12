@@ -163,7 +163,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         : currentImageIndex - 1,
                     );
                   }}
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity"
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-all duration-200 z-20 pointer-events-auto cursor-pointer hover:scale-110"
                 >
                   ‹
                 </button>
@@ -182,7 +182,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         : currentImageIndex + 1,
                     );
                   }}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-all duration-200 z-20 pointer-events-auto cursor-pointer hover:scale-110"
                 >
                   ›
                 </button>
