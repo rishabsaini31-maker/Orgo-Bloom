@@ -179,11 +179,21 @@ export default function ProductDetailPage() {
                         : "hover:ring-2 hover:ring-gray-300"
                     }`}
                   >
+                    {/* Blurred Background Image */}
+                    <Image
+                      src={allImages[0]}
+                      alt={`${product.name} background`}
+                      fill
+                      className="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40"
+                      priority
+                    />
+
+                    {/* Main Product Image */}
                     <Image
                       src={allImages[0]}
                       alt={product.name}
                       fill
-                      className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                      className="relative w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         console.error(`Failed to load image: ${allImages[0]}`);
                         e.currentTarget.src = "/placeholder-product.jpg";
@@ -222,11 +232,20 @@ export default function ProductDetailPage() {
                               : "hover:ring-2 hover:ring-gray-300"
                           }`}
                         >
+                          {/* Blurred Background Image */}
+                          <Image
+                            src={image}
+                            alt={`${product.name} bg`}
+                            fill
+                            className="absolute inset-0 w-full h-full object-cover blur-lg scale-125 opacity-40"
+                          />
+
+                          {/* Main Thumbnail Image */}
                           <Image
                             src={image}
                             alt={`${product.name} ${index + 2}`}
                             fill
-                            className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                            className="relative w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                             onError={(e) => {
                               console.error(`Failed to load image: ${image}`);
                             }}

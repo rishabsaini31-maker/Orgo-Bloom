@@ -92,14 +92,24 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-white rounded-xl shadow-elegant hover:shadow-elegant-lg transition-all duration-300 overflow-hidden group border border-gray-100 hover:border-primary-200">
       <Link href={`/products/${product.slug}`}>
-        <div className="relative h-56 bg-gradient-to-br from-gray-200 to-gray-100 overflow-hidden">
+        <div className="relative h-56 bg-gradient-to-br from-gray-200 to-gray-100 overflow-hidden group/image">
           {currentImage ? (
             <>
+              {/* Blurred Background Image */}
+              <Image
+                src={currentImage}
+                alt={`${product.name} background`}
+                fill
+                className="absolute inset-0 w-full h-full object-cover blur-xl scale-125 opacity-40"
+                priority
+              />
+
+              {/* Main Product Image */}
               <Image
                 src={currentImage}
                 alt={product.name}
                 fill
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="relative inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
                   console.error(`Failed to load image: ${currentImage}`);
                   e.currentTarget.src = "/placeholder-product.jpg";
