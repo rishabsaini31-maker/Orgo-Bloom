@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cart-store";
@@ -18,8 +19,15 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const { items, clearCart, removeItem, getTotalPrice } = useCartStore();
   const { user, isAuthenticated } = useAuthStore();
+  
+  // Check if user is authenticated via NextAuth OR the local store
+  const isUserAuthenticated =
+    status === "authenticated" || isAuthenticated;
+  const currentUser =
+    session?.user || user;
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -30,8 +38,8 @@ export default function CheckoutPage() {
   >("economy");
   const [shippingCost, setShippingCost] = useState(0);
   const [formData, setFormData] = useState({
-    fullName: user?.name || "",
-    phone: user?.phone || "",
+    fullName: currentUser?.name || "",
+    phone: (currentUser as any)?.phone || "",
     addressLine1: "",
     addressLine2: "",
     city: "",
@@ -77,8 +85,14 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/auth/login");
+    // Wait for session to load first
+    if (status === "loading") {
+      return;
+    }
+
+    // Check if user is authenticated
+    if (!isUserAuthenticated) {
+      router.push("/login");
       return;
     }
 
@@ -90,7 +104,8 @@ export default function CheckoutPage() {
     fetchAddresses();
     loadRazorpayScript();
   }, [
-    isAuthenticated,
+    status,
+    isUserAuthenticated,
     items.length,
     router,
     fetchAddresses,

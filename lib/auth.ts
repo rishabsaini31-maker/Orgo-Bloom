@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth/next";
 import bcrypt from "bcryptjs";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { prisma } from "./prisma";
+import { autoLinkAccount } from "./account-linking";
 import type { NextRequest } from "next/server";
 import type { Role } from "@prisma/client";
 
@@ -156,7 +157,7 @@ export const authOptions: NextAuthOptions = {
       return baseUrl + "/dashboard";
     },
 
-    // Sign in callback - handle OAuth and Credentials
+    // Sign in callback - handle OAuth and Credentials with AUTO-LINKING
     async signIn({ user, account, profile }) {
       try {
         // For Google OAuth provider
@@ -166,22 +167,38 @@ export const authOptions: NextAuthOptions = {
             return false;
           }
 
-          // Check if user already exists with password authentication
+          // Check if user already exists
           const existingUser = await prisma.user.findUnique({
             where: { email: user.email },
-            include: { accounts: true }, // Include OAuth accounts
+            include: { accounts: true },
           });
 
-          // If user exists with a password (email/password auth) but no OAuth accounts, prevent OAuth sign-in
+          // NEW: Auto-Link Logic
           if (
             existingUser &&
             existingUser.password &&
             existingUser.accounts.length === 0
           ) {
-            console.error(
-              "[AUTH] Email already registered with password. Please use email/password login.",
+            // User exists with email/password but no OAuth accounts
+            // AUTO-LINK: Add Google account to existing user
+            console.log(
+              `[AUTH] Auto-linking Google account to existing email user: ${user.email}`,
             );
-            return "/error?error=OAuthAccountNotLinked";
+
+            await autoLinkAccount(
+              existingUser.id,
+              "google",
+              account.providerAccountId,
+            );
+
+            // Update user object with existing user's ID (NextAuth will use this)
+            user.id = existingUser.id;
+            (user as any).role = existingUser.role;
+
+            console.log(
+              `[AUTH] ✓ Google account successfully linked for ${user.email}`,
+            );
+            return true;
           }
 
           // Allow sign-in for new users or existing OAuth users

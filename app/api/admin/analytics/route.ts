@@ -9,8 +9,20 @@ export async function GET(request: NextRequest) {
   try {
     const user = await authenticateRequest(request);
 
-    if (!user || !isAdmin(user)) {
-      throw new ApiError("Unauthorized. Admin access required.", 403);
+    if (!user) {
+      console.error("[Analytics] No user authenticated");
+      throw new ApiError("Authentication required. Please log in.", 401);
+    }
+
+    if (!isAdmin(user)) {
+      console.error("[Analytics] User not admin:", {
+        userId: user.userId,
+        role: user.role,
+      });
+      throw new ApiError(
+        `Admin access required. Your current role: ${user.role || "CUSTOMER"}. Please contact an administrator to gain access.`,
+        403,
+      );
     }
 
     // Get date range from query params
@@ -55,13 +67,13 @@ export async function GET(request: NextRequest) {
       // Revenue by day (last N days)
       prisma.$queryRaw`
         SELECT 
-          DATE(created_at) as date,
+          DATE("createdAt") as date,
           COUNT(*)::int as order_count,
           SUM(total)::float as revenue
         FROM orders
-        WHERE created_at >= ${startDate}
-        AND payment_status = 'COMPLETED'
-        GROUP BY DATE(created_at)
+        WHERE "createdAt" >= ${startDate}
+        AND "paymentStatus" = 'COMPLETED'
+        GROUP BY DATE("createdAt")
         ORDER BY date DESC
         LIMIT 30
       `,

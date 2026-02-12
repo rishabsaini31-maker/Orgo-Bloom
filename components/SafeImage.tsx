@@ -20,11 +20,7 @@ export default function SafeImage({
   if (!imageSrc || error) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src="/placeholder-product.svg"
-        alt={alt}
-        className={className}
-      />
+      <img src="/placeholder-product.svg" alt={alt} className={className} />
     );
   }
 

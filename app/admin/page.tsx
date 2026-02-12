@@ -110,22 +110,43 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="text-white">
-            <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">
-              Site Settings
-            </h3>
-            <p className="text-xs sm:text-sm text-primary-100">
-              Manage home page video and other site configurations
-            </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg shadow-md p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="text-white flex-1">
+              <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">
+                Site Settings
+              </h3>
+              <p className="text-xs sm:text-sm text-primary-100">
+                Manage home page video and other site configurations
+              </p>
+            </div>
+            <Link
+              href="/admin/settings"
+              className="bg-white text-primary-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-primary-50 transition text-sm sm:text-base w-full sm:w-auto text-center"
+            >
+              Settings
+            </Link>
           </div>
-          <Link
-            href="/admin/settings"
-            className="bg-white text-primary-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-primary-50 transition text-sm sm:text-base w-full sm:w-auto text-center"
-          >
-            Go to Settings
-          </Link>
+        </div>
+
+        <div className="bg-gradient-to-r from-green-600 to-emerald-700 rounded-lg shadow-md p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="text-white flex-1">
+              <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">
+                📊 Analytics
+              </h3>
+              <p className="text-xs sm:text-sm text-green-100">
+                View detailed business analytics and performance metrics
+              </p>
+            </div>
+            <Link
+              href="/admin/analytics"
+              className="bg-white text-green-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-green-50 transition text-sm sm:text-base w-full sm:w-auto text-center"
+            >
+              Analytics
+            </Link>
+          </div>
         </div>
       </div>
 

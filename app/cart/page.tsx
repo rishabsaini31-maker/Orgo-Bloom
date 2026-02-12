@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cart-store";
@@ -12,9 +13,13 @@ import toast from "react-hot-toast";
 
 export default function CartPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
   const { isAuthenticated } = useAuthStore();
+
+  // Check if user is authenticated via NextAuth OR the local store
+  const isUserAuthenticated = session || isAuthenticated;
 
   // Clean up invalid items from cart (e.g., temp IDs from old test data)
   useEffect(() => {
@@ -36,9 +41,9 @@ export default function CartPage() {
   const total = subtotal + shipping;
 
   const handleCheckout = () => {
-    if (!isAuthenticated) {
+    if (!isUserAuthenticated) {
       toast.error("Please login to checkout");
-      router.push("/auth/login");
+      router.push("/login");
       return;
     }
 
