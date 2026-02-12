@@ -25,6 +25,8 @@ export default function CheckoutPage() {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"UPI" | "COD">("UPI");
   const [loading, setLoading] = useState(false);
+  const [selectedShipping, setSelectedShipping] = useState<"economy" | "standard" | "express">("economy");
+  const [shippingCost, setShippingCost] = useState(0);
   const [formData, setFormData] = useState({
     fullName: user?.name || "",
     phone: user?.phone || "",
@@ -37,8 +39,17 @@ export default function CheckoutPage() {
   });
 
   const subtotal = getTotalPrice();
-  const shipping = subtotal >= 999 ? 0 : 50;
-  const total = subtotal + shipping;
+  const total = subtotal + shippingCost;
+
+  const calculateShippingCost = useCallback(() => {
+    // For now, always use economy pricing (₹100 base)
+    // In future: Express will be ₹150-200, Standard ₹120-150
+    setShippingCost(100);
+  }, []);
+
+  useEffect(() => {
+    calculateShippingCost();
+  }, [calculateShippingCost]);
 
   const loadRazorpayScript = useCallback(() => {
     const script = document.createElement("script");
@@ -428,6 +439,95 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Shipping Options */}
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
+                  Delivery Options
+                </h2>
+                <div className="space-y-3">
+                  {/* Express - Coming Soon */}
+                  <button
+                    disabled
+                    className="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-not-allowed opacity-60 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 text-left">
+                        <span className="font-semibold text-sm sm:text-base text-gray-600">
+                          Express Delivery
+                        </span>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                          2-3 days
+                        </p>
+                      </div>
+                      <span className="flex items-center gap-2 text-xs sm:text-sm">
+                        <span className="badge badge-warning">Coming Soon</span>
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Standard - Coming Soon */}
+                  <button
+                    disabled
+                    className="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-not-allowed opacity-60 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 text-left">
+                        <span className="font-semibold text-sm sm:text-base text-gray-600">
+                          Standard Delivery
+                        </span>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                          5-7 days
+                        </p>
+                      </div>
+                      <span className="flex items-center gap-2 text-xs sm:text-sm">
+                        <span className="badge badge-warning">Coming Soon</span>
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Economy - Available */}
+                  <label
+                    className={`block p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                      selectedShipping === "economy"
+                        ? "border-primary-600 bg-primary-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="radio"
+                            name="shipping"
+                            value="economy"
+                            checked={selectedShipping === "economy"}
+                            onChange={(e) =>
+                              setSelectedShipping(
+                                e.target.value as "economy" | "standard" | "express"
+                              )
+                            }
+                            className="mt-1 flex-shrink-0"
+                          />
+                          <div>
+                            <span className="font-semibold text-sm sm:text-base">
+                              Economy Delivery
+                            </span>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                              7-10 days • Budget-friendly
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className="font-semibold text-sm sm:text-base text-primary-600">
+                          ₹100
+                        </span>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               {/* Payment Method */}
               <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
@@ -511,7 +611,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-semibold">
-                      {shipping === 0 ? "Free" : formatPrice(shipping)}
+                      {formatPrice(shippingCost)}
                     </span>
                   </div>
 
